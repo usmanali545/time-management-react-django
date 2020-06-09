@@ -11,9 +11,9 @@ const Routes = (props) => {
     <div>
       <Header />
       <Switch>
-        <Route path="/" component={Home} />
-        <Route path="/signup" component={Signup} />
-        <Route path="/signin" component={Signin} />
+        <Route exact path="/" component={Home} />
+        <Route exact path="/signup" component={Signup} />
+        <Route exact path="/signin" component={Signin} />
       </Switch>
     </div>
   );
