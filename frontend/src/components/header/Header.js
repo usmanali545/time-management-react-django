@@ -50,11 +50,6 @@ function Header(props) {
               Login
             </Button>
           </Link>
-          <Link to="/signup" className={classes.link}>
-            <Button variant="contained" color="primary">
-              Signup
-            </Button>
-          </Link>
         </Toolbar>
       </AppBar>
     </div>

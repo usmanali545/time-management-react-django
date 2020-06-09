@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
 import CssBaseline from "@material-ui/core/CssBaseline";
@@ -10,6 +10,9 @@ import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { connect } from "react-redux";
+import { validateEmail } from "../../utils/helpers/validation";
+import * as actions from "../../store/actions";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -31,10 +34,24 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SignUp() {
+function SignUp(props) {
+  const { signup } = props;
   const classes = useStyles();
-  
-
+  const [error, setError] = useState(null);
+  const [errorLog, setErrorLog] = useState(null);
+  const { register, handleSubmit } = useForm();
+  const onSubmit = (data) => {
+    const { email } = data;
+    const valid = validateEmail(email);
+    if (valid.valid) {
+      setError(false);
+      console.log("-------");
+      signup(data);
+    } else {
+      setError(true);
+      setErrorLog(valid.reason);
+    }
+  };
   return (
     <Container component="main" maxWidth="xs">
       <CssBaseline />
@@ -45,7 +62,7 @@ export default function SignUp() {
         <Typography component="h1" variant="h5">
           Sign up
         </Typography>
-        <form className={classes.form} noValidate>
+        <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
           <Grid container spacing={2}>
             <Grid item xs={12} sm={6}>
               <TextField
@@ -57,6 +74,7 @@ export default function SignUp() {
                 id="firstName"
                 label="First Name"
                 autoFocus
+                inputRef={register}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -68,6 +86,7 @@ export default function SignUp() {
                 label="Last Name"
                 name="lastName"
                 autoComplete="lname"
+                inputRef={register}
               />
             </Grid>
             <Grid item xs={12}>
@@ -79,6 +98,9 @@ export default function SignUp() {
                 label="Email Address"
                 name="email"
                 autoComplete="email"
+                inputRef={register}
+                error={error}
+                helperText={error && errorLog}
               />
             </Grid>
             <Grid item xs={12}>
@@ -91,6 +113,7 @@ export default function SignUp() {
                 type="password"
                 id="password"
                 autoComplete="current-password"
+                inputRef={register}
               />
             </Grid>
           </Grid>
@@ -115,3 +138,19 @@ export default function SignUp() {
     </Container>
   );
 }
+
+const mapStateToProps = (state) => {
+  const { status, error } = state.auth;
+  return {
+    status,
+    error,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    signup: (params) => dispatch(actions.signup(params)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(SignUp);

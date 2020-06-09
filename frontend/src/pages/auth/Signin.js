@@ -9,6 +9,7 @@ import Typography from "@material-ui/core/Typography";
 import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import { Link } from "react-router-dom";
+import { useForm } from "react-hook-form";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -32,6 +33,10 @@ const useStyles = makeStyles((theme) => ({
 
 export default function SignIn() {
   const classes = useStyles();
+  const { login, handleSubmit } = useForm();
+  const onSubmit = (data) => {
+    console.log("login====");
+  };
 
   return (
     <Container component="main" maxWidth="xs">
@@ -43,7 +48,7 @@ export default function SignIn() {
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
-        <form className={classes.form} noValidate>
+        <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
           <TextField
             variant="outlined"
             margin="normal"
@@ -54,6 +59,7 @@ export default function SignIn() {
             name="email"
             autoComplete="email"
             autoFocus
+            inputRef={login}
           />
           <TextField
             variant="outlined"
@@ -65,6 +71,7 @@ export default function SignIn() {
             type="password"
             id="password"
             autoComplete="current-password"
+            inputRef={login}
           />
           <Button
             type="submit"
