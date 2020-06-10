@@ -9,7 +9,7 @@ export function* signupSaga(action) {
     yield put({ type: requestPending("SIGN_UP") });
     yield call(
       http,
-      "/signup",
+      "/signup/",
       "POST",
       {
         ...action.payload,

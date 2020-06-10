@@ -23,6 +23,7 @@ class UserSerializer(serializers.ModelSerializer):
 
     def create(self, validated_data):
         try:
+            print('-----------------')
             user = AccountUser(
                 email=validated_data['email'],
                 first_name=validated_data['first_name'],

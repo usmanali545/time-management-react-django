@@ -32,7 +32,8 @@ class LoginView(APIView):
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 
 
-class RegisterView(generics.CreateAPIView):
+class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
-    queryset = AccountUser.objects.all()
-    serializer_class = serializers.UserSerializer
+
+    def post(self, request, *args, **kwargs):
+        return Response()
