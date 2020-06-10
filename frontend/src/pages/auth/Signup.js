@@ -67,7 +67,7 @@ function SignUp(props) {
             <Grid item xs={12} sm={6}>
               <TextField
                 autoComplete="fname"
-                name="firstName"
+                name="first_name"
                 variant="outlined"
                 required
                 fullWidth
@@ -84,7 +84,7 @@ function SignUp(props) {
                 fullWidth
                 id="lastName"
                 label="Last Name"
-                name="lastName"
+                name="last_name"
                 autoComplete="lname"
                 inputRef={register}
               />

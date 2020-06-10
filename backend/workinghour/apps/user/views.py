@@ -3,8 +3,11 @@ from django.shortcuts import render
 from rest_framework.views import APIView
 from rest_framework import permissions, status
 from rest_framework import generics
+from rest_framework.response import Response
+from rest_framework_jwt.settings import api_settings
 
-from apps.user import serializers
+jwt_encode_handler = api_settings.JWT_PAYLOAD_HANDLER
+jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 AccountUser = get_user_model()
 
@@ -36,4 +39,15 @@ class RegisterView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
-        return Response()
+        first_name = request.data.get("first_name", "")
+        last_name = request.data.get("last_name", "")
+        email = request.data.get("email", "")
+        password = request.data.get("password", "")
+        user = AccountUser(
+            email=email,
+            first_name=first_name,
+            last_name=last_name,
+            password=password
+        )
+        usre.save()
+        return Response(status=status.HTTP_201_CREATED)
