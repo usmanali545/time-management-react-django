@@ -44,6 +44,18 @@ export const authReducer = function (state = initialState, action) {
         status: requestFailed("SIGN_IN"),
         error: action.payload,
       };
+    case "SET_USER_INFO":
+      return {
+        ...state,
+        me: action.payload,
+      };
+    case "REMOVE_USER":
+      return {
+        ...state,
+        me: null,
+        error: null,
+        status: "INIT",
+      };
     default:
       return state;
   }

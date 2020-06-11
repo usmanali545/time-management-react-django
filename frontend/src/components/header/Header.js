@@ -7,6 +7,8 @@ import Button from "@material-ui/core/Button";
 import IconButton from "@material-ui/core/IconButton";
 import HomeIcon from "@material-ui/icons/Home";
 import { NavLink } from "react-router-dom";
+import { connect } from "react-redux";
+import * as actions from "../../store/actions";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -23,10 +25,14 @@ const useStyles = makeStyles((theme) => ({
   title: {
     flexGrow: 1,
   },
+  button: {
+    textTransform: "none",
+  },
 }));
 
 function Header(props) {
   const classes = useStyles();
+  const { me, signout } = props;
 
   return (
     <div className={classes.root}>
@@ -45,15 +51,43 @@ function Header(props) {
           <Typography variant="h6" className={classes.title}>
             Working Hour Management
           </Typography>
-          <a href="/signin" className={classes.link}>
-            <Button variant="contained" color="primary">
-              Login
+          {me ? (
+            <Button
+              variant="contained"
+              className={classes.button}
+              color="primary"
+              onClick={signout}
+            >
+              Log out
             </Button>
-          </a>
+          ) : (
+            <a href="/signin" className={classes.link}>
+              <Button
+                variant="contained"
+                className={classes.button}
+                color="primary"
+              >
+                Login
+              </Button>
+            </a>
+          )}
         </Toolbar>
       </AppBar>
     </div>
   );
 }
 
-export default Header;
+const mapStateToProps = (state) => {
+  const { me } = state.auth;
+  return {
+    me,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    signout: () => dispatch(actions.signout()),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(Header);
