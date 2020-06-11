@@ -17,9 +17,11 @@ from django.contrib import admin
 from django.urls import path
 
 from apps.user import views as user_views
+from apps.record import views as record_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('signin/', user_views.LoginView.as_view()),
     path('signup/', user_views.RegisterView.as_view()),
+    path('records/', record_views.AddRecordView.as_view()),
 ]
