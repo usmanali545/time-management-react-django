@@ -6,6 +6,8 @@ import {
 
 const initialState = {
   me: null,
+  error: null,
+  status: "INIT",
 };
 
 export const authReducer = function (state = initialState, action) {

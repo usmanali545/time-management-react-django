@@ -18,8 +18,9 @@ class LoginView(APIView):
     permission_classes = [permissions.AllowAny]
 
     def post(self, request, *args, **kwargs):
-        username = request.data.get("username", "")
+        username = request.data.get("email", "")
         password = request.data.get("password", "")
+        print('------', username)
         user = authenticate(request=None, username=username, password=password)
 
         if user is not None:
@@ -28,7 +29,7 @@ class LoginView(APIView):
                     "token": jwt_encode_handler(
                         jwt_payload_handler(user)
                     ),
-                    "user_id": user.account_user_id,
+                    "user_id": user.id,
                     "email": user.email,
                     "first_name": user.first_name,
                     "last_name": user.last_name,

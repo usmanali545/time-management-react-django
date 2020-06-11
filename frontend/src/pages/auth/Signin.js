@@ -1,6 +1,7 @@
 import React from "react";
 import Avatar from "@material-ui/core/Avatar";
 import Button from "@material-ui/core/Button";
+import Alert from "@material-ui/lab/Alert";
 import CssBaseline from "@material-ui/core/CssBaseline";
 import TextField from "@material-ui/core/TextField";
 import Grid from "@material-ui/core/Grid";
@@ -34,9 +35,9 @@ const useStyles = makeStyles((theme) => ({
 }));
 
 function SignIn(props) {
-  const { signin } = props;
+  const { signin, status } = props;
   const classes = useStyles();
-  const { login, handleSubmit } = useForm();
+  const { register, handleSubmit } = useForm();
   const onSubmit = (data) => {
     signin(data);
   };
@@ -51,6 +52,9 @@ function SignIn(props) {
         <Typography component="h1" variant="h5">
           Sign in
         </Typography>
+        {status === "SIGN_IN_FAILED" ? (
+          <Alert severity="error">Incorrect Email and Password.</Alert>
+        ) : null}
         <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
           <TextField
             variant="outlined"
@@ -62,7 +66,7 @@ function SignIn(props) {
             name="email"
             autoComplete="email"
             autoFocus
-            inputRef={login}
+            inputRef={register}
           />
           <TextField
             variant="outlined"
@@ -74,7 +78,7 @@ function SignIn(props) {
             type="password"
             id="password"
             autoComplete="current-password"
-            inputRef={login}
+            inputRef={register}
           />
           <Button
             type="submit"

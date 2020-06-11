@@ -7,7 +7,7 @@ import { authReducer } from "./auth";
 const authPersistConfig = {
   key: "auth",
   storage: storage,
-  blacklist: [],
+  blacklist: ["error", "status"],
 };
 
 const createRootReducer = (history) =>
