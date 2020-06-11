@@ -6,6 +6,7 @@ import { requestSuccess } from "../../utils/helpers/request";
 
 export function* signupSaga(action) {
   try {
+    console.log("----------------");
     yield put({ type: requestPending("SIGN_UP") });
     yield call(
       http,
@@ -26,6 +27,15 @@ export function* signupSaga(action) {
 export function* signinSaga(action) {
   try {
     yield put({ type: requestPending("SIGN_IN") });
+    yield call(
+      http,
+      "/signin/",
+      "POST",
+      {
+        ...action.payload,
+      },
+      false
+    );
     yield put(push("/"));
   } catch (error) {
     yield put({ type: requestFailed("SIGN_IN") });

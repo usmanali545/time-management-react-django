@@ -45,7 +45,6 @@ function SignUp(props) {
     const valid = validateEmail(email);
     if (valid.valid) {
       setError(false);
-      console.log("-------");
       signup(data);
     } else {
       setError(true);

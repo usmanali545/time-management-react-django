@@ -11,19 +11,16 @@ const initialState = {
 export const authReducer = function (state = initialState, action) {
   switch (action.type) {
     case requestPending("SIGN_UP"):
-      console.log("---sign up pending------");
       return {
         ...state,
         status: requestPending("SIGN_UP"),
       };
     case requestSuccess("SIGN_UP"):
-      console.log("------ signup success------");
       return {
         ...state,
         status: requestSuccess("SIGN_UP"),
       };
     case requestFailed("SIGN_UP"):
-      console.log("------ signup failed------");
       return {
         ...state,
         status: requestFailed("SIGN_UP"),

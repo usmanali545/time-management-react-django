@@ -10,6 +10,8 @@ import { makeStyles } from "@material-ui/core/styles";
 import Container from "@material-ui/core/Container";
 import { Link } from "react-router-dom";
 import { useForm } from "react-hook-form";
+import { connect } from "react-redux";
+import * as actions from "../../store/actions";
 
 const useStyles = makeStyles((theme) => ({
   paper: {
@@ -31,11 +33,12 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-export default function SignIn() {
+function SignIn(props) {
+  const { signin } = props;
   const classes = useStyles();
   const { login, handleSubmit } = useForm();
   const onSubmit = (data) => {
-    console.log("login====");
+    signin(data);
   };
 
   return (
@@ -95,3 +98,19 @@ export default function SignIn() {
     </Container>
   );
 }
+
+const mapStateToProps = (state) => {
+  const { status, error } = state.auth;
+  return {
+    status,
+    error,
+  };
+};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    signin: (params) => dispatch(actions.signin(params)),
+  };
+};
+
+export default connect(mapStateToProps, mapDispatchToProps)(SignIn);
