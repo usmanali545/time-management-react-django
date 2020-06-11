@@ -9,7 +9,9 @@ ROLES = (
     ('admin', 'Admin'),
 )
 
-class User(AbstractUser):
+class AccountUser(AbstractUser):
+    # We will remove this field
+    username = None
     first_name = models.TextField()
     last_name = models.TextField()
     email = models.TextField(unique=True)

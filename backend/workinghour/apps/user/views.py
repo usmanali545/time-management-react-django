@@ -5,8 +5,9 @@ from rest_framework import permissions, status
 from rest_framework import generics
 from rest_framework.response import Response
 from rest_framework_jwt.settings import api_settings
+from apps.utils import pwd_hash
 
-jwt_encode_handler = api_settings.JWT_PAYLOAD_HANDLER
+jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
 
 AccountUser = get_user_model()
@@ -47,7 +48,7 @@ class RegisterView(APIView):
             email=email,
             first_name=first_name,
             last_name=last_name,
-            password=password
+            password=pwd_hash(password)
         )
-        usre.save()
+        user.save()
         return Response(status=status.HTTP_201_CREATED)
