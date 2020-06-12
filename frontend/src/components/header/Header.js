@@ -28,11 +28,25 @@ const useStyles = makeStyles((theme) => ({
   button: {
     textTransform: "none",
   },
+  navs: {
+    flexGrow: 10,
+  },
+  nav: {
+    cursor: "pointer",
+    color: "white",
+  },
 }));
 
 function Header(props) {
   const classes = useStyles();
+
   const { me, signout } = props;
+  let hasManagerAccess, hasAdminAccess;
+  if (me) {
+    const { role } = me;
+    hasManagerAccess = role === "manager" || role === "admin";
+    hasAdminAccess = role === "admin";
+  }
 
   return (
     <div className={classes.root}>
@@ -50,6 +64,23 @@ function Header(props) {
           </NavLink>
           <Typography variant="h6" className={classes.title}>
             Working Hour Management
+          </Typography>
+          <Typography variant="h6" className={classes.navs}>
+            {me && (
+              <NavLink to="/main" className={classes.nav}>
+                Main
+              </NavLink>
+            )}
+            {hasManagerAccess && (
+              <NavLink to="/users" className={classes.nav}>
+                Main
+              </NavLink>
+            )}
+            {hasAdminAccess && (
+              <NavLink to="/records" className={classes.nav}>
+                Main
+              </NavLink>
+            )}
           </Typography>
           {me ? (
             <Button

@@ -5,6 +5,7 @@ import Header from "../components/header";
 import Home from "../pages/home";
 import Signup from "../pages/auth/Signup";
 import Signin from "../pages/auth/Signin";
+import Main from "../pages/Main";
 
 const Routes = (props) => {
   return (
@@ -14,6 +15,7 @@ const Routes = (props) => {
         <Route exact path="/" component={Home} />
         <Route exact path="/signup" component={Signup} />
         <Route exact path="/signin" component={Signin} />
+        <Route exact path="/main" component={Main} />
       </Switch>
     </div>
   );
