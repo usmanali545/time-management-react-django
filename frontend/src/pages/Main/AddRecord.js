@@ -15,6 +15,7 @@ import Fade from "@material-ui/core/Fade";
 import { useForm } from "react-hook-form";
 import { connect } from "react-redux";
 import * as actions from "../../store/actions";
+import { formatDate } from "../../utils/helpers/helper";
 
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -47,12 +48,12 @@ function AddRecord(props) {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const [error, setError] = useState(false);
-  const [dateAdded, setDateAdded] = useState(new Date());
+  const [dateAdded, setDateAdded] = useState(formatDate(new Date()));
   const [selectedDate, setSelectedDate] = useState(new Date());
 
   const handleDateChange = (date) => {
     setSelectedDate(date);
-    setDateAdded(date);
+    setDateAdded(formatDate(date));
   };
 
   const handleOpen = () => {
