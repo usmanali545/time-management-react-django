@@ -15,10 +15,9 @@ class RecordViewSet(viewsets.ModelViewSet):
     def get_queryset(self):
         qs = Record.objects.all()
         params = self.request.query_params
-        current_page = int(params.get("page", None))
+
         order = params.get("order", None)
         order_by = params.get("orderBy", None)
-        rows_per_page = int(params.get("rowsPerPage", None))
 
         if order is not None:
             if order == 'asc':
@@ -26,7 +25,9 @@ class RecordViewSet(viewsets.ModelViewSet):
             else:
                 qs = Record.objects.order_by(F(order_by).desc())
 
-        if current_page is not None:
+        if params.get("page", None) is not None:
+            current_page = int(params.get("page", None))
+            rows_per_page = int(params.get("rowsPerPage", None))
             qs = qs[current_page * rows_per_page: (current_page + 1) * rows_per_page]
 
         return qs

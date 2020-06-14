@@ -6,4 +6,6 @@ export const SIGN_IN_SUCCESS = "SIGN_IN_SUCCESS";
 export const SIGN_IN_FAILED = "SIGN_IN_FAILED";
 export const SIGN_OUT = "SIGN_OUT";
 export const ADD_RECORD = "ADD_RECORD";
+export const EDIT_RECORD = "EDIT_RECORD";
 export const GET_RECORDS = "GET_RECORDS";
+export const SAVE_RECORD_PAGE_INFO = "SAVE_RECORD_PAGE_INFO";

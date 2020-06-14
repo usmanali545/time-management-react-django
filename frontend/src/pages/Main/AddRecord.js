@@ -76,9 +76,8 @@ function AddRecord(props) {
     } else {
       setError(false);
       const { detail, duration } = data;
-      const { addRecord, getRecords, tableInfo } = props;
+      const { addRecord } = props;
       addRecord({ detail, duration, added: dateAdded });
-      getRecords({ order: "desc", ...tableInfo });
       handleClose();
     }
   };

@@ -1,4 +1,4 @@
-import { put, call } from "redux-saga/effects";
+import { put, call, select } from "redux-saga/effects";
 import { push } from "connected-react-router";
 import {
   requestSuccess,
@@ -6,9 +6,11 @@ import {
   requestFailed,
 } from "../../utils/helpers/request";
 import { http } from "../../utils/helpers/http";
+import { GET_RECORDS } from "../actionTypes";
 
 export function* addRecordSaga(action) {
   try {
+    const state = yield select();
     yield put({ type: requestPending("ADD_RECORD") });
     yield call(
       http,
@@ -20,10 +22,37 @@ export function* addRecordSaga(action) {
       true
     );
     yield put({ type: requestSuccess("ADD_RECORD") });
+    yield put({
+      type: GET_RECORDS,
+      payload: { order: "desc", ...state.record.pageInfo },
+    });
     yield put(push("/main"));
-    // yield put({ type: "SET_RECORD_INFO", payload: response.data });
   } catch (error) {
     yield put({ type: requestFailed("ADD_RECORD") });
+  }
+}
+
+export function* editRecordSaga(action) {
+  try {
+    const state = yield select();
+    yield put({ type: requestPending("EDIT_RECORD") });
+    yield call(
+      http,
+      `/records/${action.payload.id}/`,
+      "PUT",
+      {
+        ...action.payload,
+      },
+      true
+    );
+    yield put({ type: requestSuccess("EDIT_RECORD") });
+    yield put({
+      type: GET_RECORDS,
+      payload: state.record.pageInfo,
+    });
+    yield put(push("/main"));
+  } catch (error) {
+    yield put({ type: requestFailed("EDIT_RECORD") });
   }
 }
 
