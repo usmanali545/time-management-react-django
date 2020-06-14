@@ -7,7 +7,7 @@ export const http = (
   hasToken = true,
   params = {}
 ) => {
-  const token = window.localStorage.getItem("workinghour_auth_token");
+  const token = window.localStorage.getItem("working_hour_auth_token");
   let headers = {
     Accept: "application/json",
     "Content-Type": "application/json",

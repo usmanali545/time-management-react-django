@@ -68,7 +68,7 @@ function AddRecord(props) {
   const onSubmit = (data) => {
     const { duration } = data;
     if (
-      parseFloat(duration) === NaN ||
+      isNaN(parseFloat(duration)) ||
       parseFloat(duration) <= 0 ||
       parseFloat(duration) >= 24
     ) {
@@ -76,8 +76,10 @@ function AddRecord(props) {
     } else {
       setError(false);
       const { detail, duration } = data;
-      const { addRecord } = props;
-      addRecord({ detail, duration, dateAdded });
+      const { addRecord, getRecords, tableInfo } = props;
+      addRecord({ detail, duration, added: dateAdded });
+      getRecords({ order: "desc", ...tableInfo });
+      handleClose();
     }
   };
 
@@ -168,10 +170,17 @@ function AddRecord(props) {
   );
 }
 
+const mapStateToProps = (state) => {
+  const { loading } = state.record;
+  return {
+    loading,
+  };
+};
+
 const mapDispatchToProps = (dispatch) => {
   return {
     addRecord: (params) => dispatch(actions.addRecord(params)),
   };
 };
 
-export default connect(null, mapDispatchToProps)(AddRecord);
+export default connect(mapStateToProps, mapDispatchToProps)(AddRecord);

@@ -1,6 +1,9 @@
-import { ADD_RECORD } from "../actionTypes";
+import { ADD_RECORD, GET_RECORDS } from "../actionTypes";
 
 export const addRecord = (payload) => {
-  console.log("---------------------");
   return { type: ADD_RECORD, payload };
+};
+
+export const getRecords = (payload) => {
+  return { type: GET_RECORDS, payload };
 };
