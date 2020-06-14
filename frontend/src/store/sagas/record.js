@@ -56,6 +56,30 @@ export function* editRecordSaga(action) {
   }
 }
 
+export function* deleteRecordSaga(action) {
+  try {
+    const state = yield select();
+    yield put({ type: requestPending("DELETE_RECORD") });
+    yield call(
+      http,
+      `/records/${action.payload.id}/`,
+      "DELETE",
+      {
+        ...action.payload,
+      },
+      true
+    );
+    yield put({ type: requestSuccess("DELETE_RECORD") });
+    yield put({
+      type: GET_RECORDS,
+      payload: state.record.pageInfo,
+    });
+    yield put(push("/main"));
+  } catch (error) {
+    yield put({ type: requestFailed("DELETE_RECORD") });
+  }
+}
+
 export function* getRecordsSaga(action) {
   try {
     yield put({ type: requestPending("GET_RECORDS") });

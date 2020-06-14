@@ -28,6 +28,11 @@ import TextField from "@material-ui/core/TextField";
 import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
 import Fade from "@material-ui/core/Fade";
+import Dialog from "@material-ui/core/Dialog";
+import DialogActions from "@material-ui/core/DialogActions";
+import DialogContent from "@material-ui/core/DialogContent";
+import DialogContentText from "@material-ui/core/DialogContentText";
+import DialogTitle from "@material-ui/core/DialogTitle";
 import { useForm } from "react-hook-form";
 import { connect } from "react-redux";
 import * as actions from "../store/actions";
@@ -176,7 +181,7 @@ function AdminTable(props) {
     savePageInfo,
   } = props;
 
-  // modal
+  // Edit Modal
   const [open, setOpen] = useState(false);
   const [error, setError] = useState(false);
   const [dateEdited, setDateEdited] = useState(formatDate(new Date()));
@@ -246,6 +251,25 @@ function AdminTable(props) {
     setOpen(false);
   };
 
+  // Delete Modal
+  const [openDelete, setOpenDelete] = useState(false);
+  const [selectedRow, setSelectedRow] = useState({});
+
+  const handleDeleteOpen = (row) => {
+    setOpenDelete(true);
+    setSelectedRow(row);
+  };
+
+  const handleDeleteClose = () => {
+    setOpenDelete(false);
+  };
+
+  const handleDelete = () => {
+    console.log("--------", selectedRow);
+    const { deleteRecord } = props;
+    deleteRecord({ id: selectedRow.id });
+    handleDeleteClose();
+  };
   // const emptyRows =
   //   rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
@@ -299,6 +323,7 @@ function AdminTable(props) {
                           className={classes.actionButtons}
                           variant="outlined"
                           color="secondary"
+                          onClick={() => handleDeleteOpen(row)}
                         >
                           Delete
                         </Button>
@@ -409,6 +434,30 @@ function AdminTable(props) {
           </div>
         </Fade>
       </Modal>
+      <Dialog
+        open={openDelete}
+        onClose={handleDeleteClose}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">
+          {"Use Google's location service?"}
+        </DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Let Google help apps determine location. This means sending
+            anonymous location data to Google, even when no apps are running.
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleDeleteClose} color="primary">
+            Disagree
+          </Button>
+          <Button onClick={handleDelete} color="primary" autoFocus>
+            Agree
+          </Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 }
@@ -424,6 +473,7 @@ const mapDispatchToProps = (dispatch) => {
   return {
     savePageInfo: (params) => dispatch(actions.saveRecordPageInfo(params)),
     editRecord: (params) => dispatch(actions.editRecord(params)),
+    deleteRecord: (params) => dispatch(actions.deleteRecord(params)),
   };
 };
 

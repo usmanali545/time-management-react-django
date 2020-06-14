@@ -2,6 +2,7 @@ import {
   ADD_RECORD,
   GET_RECORDS,
   EDIT_RECORD,
+  DELETE_RECORD,
   SAVE_RECORD_PAGE_INFO,
 } from "../actionTypes";
 
@@ -11,6 +12,10 @@ export const addRecord = (payload) => {
 
 export const editRecord = (payload) => {
   return { type: EDIT_RECORD, payload };
+};
+
+export const deleteRecord = (payload) => {
+  return { type: DELETE_RECORD, payload };
 };
 
 export const getRecords = (payload) => {
