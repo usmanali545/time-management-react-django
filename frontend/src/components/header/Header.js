@@ -34,6 +34,7 @@ const useStyles = makeStyles((theme) => ({
   nav: {
     cursor: "pointer",
     color: "white",
+    padding: "0px 10px",
   },
 }));
 
@@ -73,12 +74,12 @@ function Header(props) {
             )}
             {hasManagerAccess && (
               <NavLink to="/users" className={classes.nav}>
-                Main
+                Users
               </NavLink>
             )}
             {hasAdminAccess && (
               <NavLink to="/records" className={classes.nav}>
-                Main
+                Records
               </NavLink>
             )}
           </Typography>

@@ -1,13 +1,23 @@
 import React from "react";
 import { Route, Switch } from "react-router-dom";
+import { connect } from "react-redux";
 
 import Header from "../components/header";
 import Home from "../pages/home";
 import Signup from "../pages/auth/Signup";
 import Signin from "../pages/auth/Signin";
 import Main from "../pages/Main";
+import Users from "../pages/Users";
+import Records from "../pages/Records";
 
 const Routes = (props) => {
+  const { me } = props;
+  let hasManagerAccess, hasAdminAccess;
+  if (me) {
+    const { role } = me;
+    hasManagerAccess = role === "manager" || role === "admin";
+    hasAdminAccess = role === "admin";
+  }
   return (
     <div>
       <Header />
@@ -16,9 +26,18 @@ const Routes = (props) => {
         <Route exact path="/signup" component={Signup} />
         <Route exact path="/signin" component={Signin} />
         <Route exact path="/main" component={Main} />
+        {hasManagerAccess && <Route exact path="/users" component={Users} />}
+        {hasAdminAccess && <Route exact path="/records" component={Records} />}
       </Switch>
     </div>
   );
 };
 
-export default Routes;
+const mapStateToProps = (state) => {
+  const { me } = state.auth;
+  return {
+    me,
+  };
+};
+
+export default connect(mapStateToProps, null)(Routes);
