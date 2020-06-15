@@ -53,7 +53,8 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 function AddUser(props) {
-  const { addUser, status } = props;
+  const { me, addUser, status } = props;
+  let hasAdminAccess = me.role === "admin";
   const classes = useStyles();
   const [open, setOpen] = useState(false);
 
@@ -79,6 +80,7 @@ function AddUser(props) {
     if (valid.valid) {
       setError(false);
       addUser({ role, ...data });
+      handleClose();
     } else {
       setError(true);
       setErrorLog(valid.reason);
@@ -151,7 +153,9 @@ function AddUser(props) {
                     >
                       <MenuItem value={"regular"}>Regular User</MenuItem>
                       <MenuItem value={"manager"}>Manager</MenuItem>
-                      <MenuItem value={"admin"}>Admin</MenuItem>
+                      {hasAdminAccess && (
+                        <MenuItem value={"admin"}>Admin</MenuItem>
+                      )}
                     </Select>
                   </FormControl>
                 </Grid>
@@ -202,7 +206,9 @@ function AddUser(props) {
 
 const mapStateToProps = (state) => {
   const { loading } = state.record;
+  const { me } = state.auth;
   return {
+    me,
     loading,
   };
 };

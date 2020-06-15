@@ -5,7 +5,7 @@ from rest_framework import generics
 from rest_framework import viewsets
 from apps.record.models import Record
 from apps.record.serializers import RecordSerializer
-from apps.utils import RecordCreationPermission
+from apps.utils import IsManagerOrAdmin
 from django.db.models import F
 
 class RecordViewSet(viewsets.ModelViewSet):

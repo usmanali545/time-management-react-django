@@ -3,7 +3,10 @@ from rest_framework.views import APIView
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework_jwt.settings import api_settings
-from apps.utils import pwd_hash
+from apps.utils import pwd_hash, IsManagerOrAdmin
+from rest_framework import viewsets
+from apps.user.serializers import UserSerializer
+from django.db.models import F
 
 jwt_payload_handler = api_settings.JWT_PAYLOAD_HANDLER
 jwt_encode_handler = api_settings.JWT_ENCODE_HANDLER
@@ -50,3 +53,33 @@ class RegisterView(APIView):
         )
         user.save()
         return Response(status=status.HTTP_201_CREATED)
+
+
+class UsersViewSet(viewsets.ModelViewSet):
+    serializer_class = UserSerializer
+    permission_classes = [IsManagerOrAdmin]
+
+    def get_queryset(self):
+        qs = AccountUser.objects.all()
+        params = self.request.query_params
+
+        order = params.get("order", None)
+        order_by = params.get("orderBy", None)
+
+        if order is not None:
+            if order == 'asc':
+                qs = AccountUser.objects.order_by(F(order_by).asc())
+            else:
+                qs = AccountUser.objects.order_by(F(order_by).desc())
+
+        if params.get("page", None) is not None:
+            current_page = int(params.get("page", None))
+            rows_per_page = int(params.get("rowsPerPage", None))
+            qs = qs[current_page * rows_per_page: (current_page + 1) * rows_per_page]
+
+        return qs
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        serializer = UserSerializer(queryset, many=True)
+        return Response(data={"total_page": len(AccountUser.objects.all()), "data": serializer.data})

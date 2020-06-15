@@ -24,7 +24,7 @@ export function* addUserSaga(action) {
     yield put({ type: requestSuccess("ADD_USER") });
     yield put({
       type: GET_USERS,
-      payload: { order: "desc", ...state.record.pageInfo },
+      payload: { order: "desc", ...state.admin.usersPageInfo },
     });
     yield put(push("/users"));
   } catch (error) {
