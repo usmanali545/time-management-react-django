@@ -54,7 +54,7 @@ const useStyles = makeStyles((theme) => ({
 }));
 function AddUser(props) {
   const { me, addUser, status } = props;
-  let hasAdminAccess = me.role === "admin";
+  const hasAdminAccess = me.role === "admin";
   const classes = useStyles();
   const [open, setOpen] = useState(false);
 
@@ -107,7 +107,7 @@ function AddUser(props) {
         <Fade in={open}>
           <div className={classes.paper}>
             <h2 id="transition-modal-title">Add User</h2>
-            {status === "SIGN_UP_FAILED" ? (
+            {status === "ADD_USER_FAILED" ? (
               <Alert severity="error">
                 A user with this email already exists.
               </Alert>

@@ -38,7 +38,7 @@ import { connect } from "react-redux";
 import * as actions from "../store/actions";
 import { formatDate } from "../utils/helpers/helper";
 
-function AdminTableHead(props) {
+function OwnRecordTableHead(props) {
   const { classes, order, orderBy, onRequestSort, headCells } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
@@ -54,7 +54,7 @@ function AdminTableHead(props) {
             padding={headCell.disablePadding ? "none" : "default"}
             sortDirection={orderBy === headCell.id ? order : false}
           >
-            {headCell.id !== "action" && headCell.id !== "account_user" ? (
+            {headCell.id !== "action" ? (
               <TableSortLabel
                 active={orderBy === headCell.id}
                 direction={orderBy === headCell.id ? order : "asc"}
@@ -79,7 +79,7 @@ function AdminTableHead(props) {
   );
 }
 
-AdminTableHead.propTypes = {
+OwnRecordTableHead.propTypes = {
   classes: PropTypes.object.isRequired,
   onRequestSort: PropTypes.func.isRequired,
   order: PropTypes.oneOf(["asc", "desc"]).isRequired,
@@ -171,7 +171,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function AdminTable(props) {
+function OwnRecordTable(props) {
   const classes = useStyles();
   const [order, setOrder] = useState("desc");
   const [orderBy, setOrderBy] = useState("added");
@@ -184,7 +184,7 @@ function AdminTable(props) {
     totalRecords,
     headCells,
     actions,
-    savePageInfo,
+    saveOwnRecordPageInfo,
   } = props;
 
   // Edit Modal
@@ -195,7 +195,6 @@ function AdminTable(props) {
   const [editRecordId, setEditRecordId] = useState(null);
   const [editDuration, setEditDuration] = useState(0);
   const [editDetail, setEditDetail] = useState("");
-  const [editRecordUserId, setEditRecordUserId] = useState("");
   const { register, handleSubmit } = useForm();
   const onSubmit = (data) => {
     const { duration } = data;
@@ -208,24 +207,18 @@ function AdminTable(props) {
       setError(true);
     } else {
       setError(false);
-      const { detail, duration, account_user } = data;
-      const { editRecord } = props;
+      const { detail, duration } = data;
+      const { editOwnRecord } = props;
       console.log();
-      editRecord({
-        id: editRecordId,
-        account_user_id: editRecordUserId,
-        detail,
-        duration,
-        added: dateEdited,
-      });
+      editOwnRecord({ id: editRecordId, detail, duration, added: dateEdited });
       handleClose();
     }
   };
 
   useEffect(() => {
-    savePageInfo({ order, orderBy, page, rowsPerPage });
+    saveOwnRecordPageInfo({ order, orderBy, page, rowsPerPage });
     getData({ order, orderBy, page, rowsPerPage });
-  }, [order, orderBy, page, rowsPerPage, savePageInfo, getData]);
+  }, [order, orderBy, page, rowsPerPage, saveOwnRecordPageInfo, getData]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -258,7 +251,6 @@ function AdminTable(props) {
     setEditDetail(row.detail);
     setEditDuration(row.duration);
     setEditRecordId(row.id);
-    setEditRecordUserId(row.account_user);
   };
 
   const handleClose = () => {
@@ -279,9 +271,8 @@ function AdminTable(props) {
   };
 
   const handleDelete = () => {
-    console.log("--------", selectedRow);
-    const { deleteRecord } = props;
-    deleteRecord({ id: selectedRow.id });
+    const { deleteOwnRecord } = props;
+    deleteOwnRecord({ id: selectedRow.id });
     handleDeleteClose();
   };
   // const emptyRows =
@@ -298,7 +289,7 @@ function AdminTable(props) {
             size={dense ? "small" : "medium"}
             aria-label="admin table"
           >
-            <AdminTableHead
+            <OwnRecordTableHead
               classes={classes}
               order={order}
               orderBy={orderBy}
@@ -319,9 +310,6 @@ function AdminTable(props) {
                       scope="row"
                       padding="none"
                     >
-                      {row.full_name}
-                    </TableCell>
-                    <TableCell id={labelId} scope="row" padding="none">
                       {row.detail}
                     </TableCell>
                     <TableCell align="left">{row.added}</TableCell>
@@ -485,10 +473,11 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    savePageInfo: (params) => dispatch(actions.saveRecordPageInfo(params)),
-    editRecord: (params) => dispatch(actions.editRecord(params)),
-    deleteRecord: (params) => dispatch(actions.deleteRecord(params)),
+    saveOwnRecordPageInfo: (params) =>
+      dispatch(actions.saveOwnRecordPageInfo(params)),
+    editOwnRecord: (params) => dispatch(actions.editOwnRecord(params)),
+    deleteOwnRecord: (params) => dispatch(actions.deleteOwnRecord(params)),
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(AdminTable);
+export default connect(mapStateToProps, mapDispatchToProps)(OwnRecordTable);

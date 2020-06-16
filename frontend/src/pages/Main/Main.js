@@ -4,7 +4,7 @@ import Grid from "@material-ui/core/Grid";
 import AddRecord from "./AddRecord";
 import { connect } from "react-redux";
 import * as actions from "../../store/actions";
-import AdminTable from "../../components/AdminTable";
+import OwnRecordTable from "../../components/OwnRecordTable";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -31,7 +31,7 @@ const headCells = [
 
 function Main(props) {
   const classes = useStyles();
-  const { getRecords, records } = props;
+  const { getOwnRecords, records } = props;
   return (
     <div className={classes.root}>
       <Grid container spacing={3} justify="center">
@@ -39,11 +39,11 @@ function Main(props) {
           <AddRecord />
         </Grid>
         <Grid item xs={10}>
-          <AdminTable
+          <OwnRecordTable
             title="Working Hour Records"
-            getData={getRecords}
+            getData={getOwnRecords}
             tableData={records ? records : []}
-            totalPage={records ? records.total_page : 0}
+            totalRecords={records ? records.total_records : 0}
             headCells={headCells}
             actions={{
               exist: true,
@@ -65,7 +65,7 @@ const mapStateToProps = (state) => {
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    getRecords: (params) => dispatch(actions.getRecords(params)),
+    getOwnRecords: (params) => dispatch(actions.getOwnRecords(params)),
   };
 };
 

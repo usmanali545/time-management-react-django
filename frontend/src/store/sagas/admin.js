@@ -39,7 +39,7 @@ export function* editUserSaga(action) {
     yield call(
       http,
       `/users/${action.payload.id}/`,
-      "PUT",
+      "PATCH",
       {
         ...action.payload,
       },
@@ -48,7 +48,7 @@ export function* editUserSaga(action) {
     yield put({ type: requestSuccess("EDIT_USER") });
     yield put({
       type: GET_USERS,
-      payload: state.record.pageInfo,
+      payload: state.admin.usersPageInfo,
     });
     yield put(push("/users"));
   } catch (error) {
@@ -72,7 +72,7 @@ export function* deleteUserSaga(action) {
     yield put({ type: requestSuccess("DELETE_USER") });
     yield put({
       type: GET_USERS,
-      payload: state.record.pageInfo,
+      payload: state.admin.usersPageInfo,
     });
     yield put(push("/users"));
   } catch (error) {
@@ -95,5 +95,18 @@ export function* getUsersSaga(action) {
     yield put(push("/users"));
   } catch (error) {
     yield put({ type: requestFailed("GET_USERS") });
+  }
+}
+
+export function* getTotalUsersSaga(action) {
+  try {
+    yield put({ type: requestPending("GET_TOTAL_USERS") });
+    const response = yield call(http, "/users/", "GET", {}, true);
+    yield put({
+      type: requestSuccess("GET_TOTAL_USERS"),
+      payload: response.data,
+    });
+  } catch (error) {
+    yield put({ type: requestFailed("GET_TOTAL_USERS") });
   }
 }

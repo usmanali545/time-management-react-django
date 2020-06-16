@@ -21,8 +21,9 @@ from apps.record import views as record_views
 from rest_framework import routers
 
 router = routers.SimpleRouter()
+router.register(r'own', record_views.OwnRecordViewSet, "own records")
 router.register(r'records', record_views.RecordViewSet, "records")
-router.register(r'users', user_views.UsersViewSet, "records")
+router.register(r'users', user_views.UsersViewSet, "users")
 
 urlpatterns = [
     path('admin/', admin.site.urls),

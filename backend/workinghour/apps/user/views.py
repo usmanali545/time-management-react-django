@@ -1,4 +1,5 @@
 from django.contrib.auth import get_user_model, authenticate
+from django.shortcuts import get_object_or_404
 from rest_framework.views import APIView
 from rest_framework import permissions, status
 from rest_framework.response import Response
@@ -60,7 +61,8 @@ class UsersViewSet(viewsets.ModelViewSet):
     permission_classes = [IsManagerOrAdmin]
 
     def get_queryset(self):
-        qs = AccountUser.objects.all()
+        qs = AccountUser.objects.all().exclude(id=self.request.user.id)
+        total_users = len(qs)
         params = self.request.query_params
 
         order = params.get("order", None)
@@ -73,13 +75,17 @@ class UsersViewSet(viewsets.ModelViewSet):
                 qs = AccountUser.objects.order_by(F(order_by).desc())
 
         if params.get("page", None) is not None:
+            if self.request.user.role == "manager":
+                qs = qs.exclude(role="admin")
+            total_users = len(qs)
             current_page = int(params.get("page", None))
             rows_per_page = int(params.get("rowsPerPage", None))
             qs = qs[current_page * rows_per_page: (current_page + 1) * rows_per_page]
+            return qs, total_users
 
-        return qs
+        return qs, total_users
 
     def list(self, request):
-        queryset = self.get_queryset()
+        queryset, total_users = self.get_queryset()
         serializer = UserSerializer(queryset, many=True)
-        return Response(data={"total_page": len(AccountUser.objects.all()), "data": serializer.data})
+        return Response(data={"total_users": total_users, "data": serializer.data})

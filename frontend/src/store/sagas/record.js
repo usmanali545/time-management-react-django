@@ -6,7 +6,7 @@ import {
   requestFailed,
 } from "../../utils/helpers/request";
 import { http } from "../../utils/helpers/http";
-import { GET_RECORDS } from "../actionTypes";
+import { GET_RECORDS, GET_OWN_RECORDS } from "../actionTypes";
 
 export function* addRecordSaga(action) {
   try {
@@ -26,7 +26,7 @@ export function* addRecordSaga(action) {
       type: GET_RECORDS,
       payload: { order: "desc", ...state.record.pageInfo },
     });
-    yield put(push("/main"));
+    yield put(push("/records"));
   } catch (error) {
     yield put({ type: requestFailed("ADD_RECORD") });
   }
@@ -39,7 +39,7 @@ export function* editRecordSaga(action) {
     yield call(
       http,
       `/records/${action.payload.id}/`,
-      "PUT",
+      "PATCH",
       {
         ...action.payload,
       },
@@ -50,7 +50,7 @@ export function* editRecordSaga(action) {
       type: GET_RECORDS,
       payload: state.record.pageInfo,
     });
-    yield put(push("/main"));
+    yield put(push("/records"));
   } catch (error) {
     yield put({ type: requestFailed("EDIT_RECORD") });
   }
@@ -74,7 +74,7 @@ export function* deleteRecordSaga(action) {
       type: GET_RECORDS,
       payload: state.record.pageInfo,
     });
-    yield put(push("/main"));
+    yield put(push("/records"));
   } catch (error) {
     yield put({ type: requestFailed("DELETE_RECORD") });
   }
@@ -92,8 +92,94 @@ export function* getRecordsSaga(action) {
       action.payload
     );
     yield put({ type: requestSuccess("GET_RECORDS"), payload: response.data });
-    yield put(push("/main"));
+    yield put(push("/records"));
   } catch (error) {
     yield put({ type: requestFailed("GET_RECORDS") });
+  }
+}
+
+export function* addOwnRecordSaga(action) {
+  try {
+    const state = yield select();
+    yield put({ type: requestPending("ADD_OWN_RECORD") });
+    yield call(
+      http,
+      "/own/",
+      "POST",
+      {
+        ...action.payload,
+      },
+      true
+    );
+    yield put({ type: requestSuccess("ADD_OWN_RECORD") });
+    yield put({
+      type: GET_OWN_RECORDS,
+      payload: { order: "desc", ...state.record.pageInfo },
+    });
+    yield put(push("/main"));
+  } catch (error) {
+    yield put({ type: requestFailed("ADD_OWN_RECORD") });
+  }
+}
+
+export function* editOwnRecordSaga(action) {
+  try {
+    const state = yield select();
+    yield put({ type: requestPending("EDIT_OWN_RECORD") });
+    yield call(
+      http,
+      `/own/${action.payload.id}/`,
+      "PUT",
+      {
+        ...action.payload,
+      },
+      true
+    );
+    yield put({ type: requestSuccess("EDIT_OWN_RECORD") });
+    yield put({
+      type: GET_OWN_RECORDS,
+      payload: state.record.pageInfo,
+    });
+    yield put(push("/main"));
+  } catch (error) {
+    yield put({ type: requestFailed("EDIT_OWN_RECORD") });
+  }
+}
+
+export function* deleteOwnRecordSaga(action) {
+  try {
+    const state = yield select();
+    yield put({ type: requestPending("DELETE_OWN_RECORD") });
+    yield call(
+      http,
+      `/own/${action.payload.id}/`,
+      "DELETE",
+      {
+        ...action.payload,
+      },
+      true
+    );
+    yield put({ type: requestSuccess("DELETE_OWN_RECORD") });
+    yield put({
+      type: GET_OWN_RECORDS,
+      payload: state.record.pageInfo,
+    });
+    yield put(push("/main"));
+  } catch (error) {
+    yield put({ type: requestFailed("DELETE_OWN_RECORD") });
+  }
+}
+
+export function* getOwnRecordsSaga(action) {
+  try {
+    yield put({ type: requestPending("GET_OWN_RECORDS") });
+    const response = yield call(http, "/own/", "GET", {}, true, action.payload);
+    yield put({
+      type: requestSuccess("GET_OWN_RECORDS"),
+      payload: response.data,
+    });
+    yield put(push("/main"));
+  } catch (error) {
+    yield put({ type: requestFailed("GET_OWN_RECORDS") });
   }
 }

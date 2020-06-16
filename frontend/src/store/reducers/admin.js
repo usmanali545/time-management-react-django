@@ -7,12 +7,13 @@ import {
 import { SAVE_USERS_PAGE_INFO } from "../actionTypes";
 
 const initialState = {
-  records: null,
+  users: null,
+  totalUsers: null,
   loading: false,
   status: "INIT",
   usersPageInfo: {
     order: "desc",
-    orderBy: "added",
+    orderBy: "created",
     page: 0,
     rowsPerPage: 5,
   },
@@ -67,7 +68,7 @@ export const adminReducer = function (state = initialState, action) {
     case requestSuccess("GET_USERS"):
       return {
         ...state,
-        records: action.payload,
+        users: action.payload,
         loading: false,
         status: requestSuccess("GET_USERS"),
       };
@@ -78,10 +79,30 @@ export const adminReducer = function (state = initialState, action) {
         status: requestFailed("GET_USERS"),
         error: action.payload,
       };
+    case requestPending("GET_TOTAL_USERS"):
+      return {
+        ...state,
+        loading: true,
+        status: requestPending("GET_TOTAL_USERS"),
+      };
+    case requestSuccess("GET_TOTAL_USERS"):
+      return {
+        ...state,
+        totalUsers: action.payload,
+        loading: false,
+        status: requestSuccess("GET_TOTAL_USERS"),
+      };
+    case requestFailed("GET_TOTAL_USERS"):
+      return {
+        ...state,
+        loading: true,
+        status: requestFailed("GET_TOTAL_USERS"),
+        error: action.payload,
+      };
     case SAVE_USERS_PAGE_INFO:
       return {
         ...state,
-        pageInfo: action.payload,
+        usersPageInfo: action.payload,
       };
     default:
       return state;

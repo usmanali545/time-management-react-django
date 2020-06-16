@@ -27,7 +27,7 @@ class UserSerializer(serializers.ModelSerializer):
         instance.first_name = validated_data.get("first_name", instance.first_name)
         instance.last_name = validated_data.get("last_name", instance.last_name)
         instance.role = validated_data.get("role", instance.role)
-        if validated_data['password'] is not None:
+        if validated_data.get('password', None) is not None:
             instance.password = pwd_hash(validated_data["password"])
         instance.save()
         return instance

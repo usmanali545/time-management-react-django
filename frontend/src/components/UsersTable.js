@@ -37,6 +37,12 @@ import { useForm } from "react-hook-form";
 import { connect } from "react-redux";
 import * as actions from "../store/actions";
 import { formatDate } from "../utils/helpers/helper";
+import InputLabel from "@material-ui/core/InputLabel";
+import MenuItem from "@material-ui/core/MenuItem";
+import FormControl from "@material-ui/core/FormControl";
+import Select from "@material-ui/core/Select";
+import Alert from "@material-ui/lab/Alert";
+import { validateEmail } from "../utils/helpers/validation";
 
 function AdminTableHead(props) {
   const { classes, order, orderBy, onRequestSort, headCells } = props;
@@ -54,18 +60,24 @@ function AdminTableHead(props) {
             padding={headCell.disablePadding ? "none" : "default"}
             sortDirection={orderBy === headCell.id ? order : false}
           >
-            <TableSortLabel
-              active={orderBy === headCell.id}
-              direction={orderBy === headCell.id ? order : "asc"}
-              onClick={createSortHandler(headCell.id)}
-            >
-              {headCell.label}
-              {orderBy === headCell.id ? (
-                <span className={classes.visuallyHidden}>
-                  {order === "desc" ? "sorted descending" : "sorted ascending"}
-                </span>
-              ) : null}
-            </TableSortLabel>
+            {headCell.id !== "action" ? (
+              <TableSortLabel
+                active={orderBy === headCell.id}
+                direction={orderBy === headCell.id ? order : "asc"}
+                onClick={createSortHandler(headCell.id)}
+              >
+                {headCell.label}
+                {orderBy === headCell.id ? (
+                  <span className={classes.visuallyHidden}>
+                    {order === "desc"
+                      ? "sorted descending"
+                      : "sorted ascending"}
+                  </span>
+                ) : null}
+              </TableSortLabel>
+            ) : (
+              headCell.label
+            )}
           </TableCell>
         ))}
       </TableRow>
@@ -157,62 +169,80 @@ const useStyles = makeStyles((theme) => ({
     width: "100%", // Fix IE 11 issue.
     marginTop: theme.spacing(1),
   },
+  submit: {
+    margin: theme.spacing(3, 0, 2),
+  },
+  formControl: {
+    margin: theme.spacing(1),
+    minWidth: 200,
+  },
   modalPaper: {
     backgroundColor: theme.palette.background.paper,
     border: "2px solid #000",
     boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
+    width: "50%",
   },
 }));
 
 function AdminTable(props) {
-  const classes = useStyles();
-  const [order, setOrder] = useState("desc");
-  const [orderBy, setOrderBy] = useState("added");
-  const [page, setPage] = useState(0);
-  const [dense, setDense] = useState(false);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
   const {
+    me,
     getData,
     tableData,
     totalPage,
     headCells,
     actions,
-    savePageInfo,
+    saveUsersPageInfo,
+    editUser,
   } = props;
+  const classes = useStyles();
+  const [order, setOrder] = useState("desc");
+  const [orderBy, setOrderBy] = useState("created");
+  const [page, setPage] = useState(0);
+  const [dense, setDense] = useState(false);
+  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const hasAdminAccess = me.role === "admin";
 
   // Edit Modal
   const [open, setOpen] = useState(false);
   const [error, setError] = useState(false);
-  const [dateEdited, setDateEdited] = useState(formatDate(new Date()));
-  const [selectedDate, setSelectedDate] = useState(new Date());
-  const [editRecordId, setEditRecordId] = useState(null);
-  const [editDuration, setEditDuration] = useState(0);
-  const [editDetail, setEditDetail] = useState("");
+  const [errorLog, setErrorLog] = useState(null);
+  const [role, setRole] = React.useState("");
+  const [editUserId, setEditUserId] = useState(null);
+  const [editFirstName, setEditFirstName] = useState("");
+  const [editLastName, setEditLastName] = useState("");
+  const [editEmail, setEditEmail] = useState("");
   const { register, handleSubmit } = useForm();
   const onSubmit = (data) => {
-    const { duration } = data;
-
-    if (
-      isNaN(parseFloat(duration)) ||
-      parseFloat(duration) <= 0 ||
-      parseFloat(duration) >= 24
-    ) {
-      setError(true);
+    const { email } = data;
+    let valid;
+    if (email === "") {
+      valid = { valid: true, reason: "Success" };
     } else {
+      valid = validateEmail(email);
+    }
+    if (valid.valid) {
       setError(false);
-      const { detail, duration } = data;
-      const { editRecord } = props;
-      console.log();
-      editRecord({ id: editRecordId, detail, duration, added: dateEdited });
+      const { first_name, last_name, email, password } = data;
+      data = {
+        first_name: first_name !== "" ? first_name : undefined,
+        last_name: last_name !== "" ? last_name : undefined,
+        email: email !== "" ? email : undefined,
+        password: password !== "" ? password : undefined,
+      };
+      editUser({ id: editUserId, role, ...data });
       handleClose();
+    } else {
+      setError(true);
+      setErrorLog(valid.reason);
     }
   };
 
   useEffect(() => {
-    savePageInfo({ order, orderBy, page, rowsPerPage });
-    // getData({ order, orderBy, page, rowsPerPage });
-  }, [order, orderBy, page, rowsPerPage, savePageInfo, getData]);
+    saveUsersPageInfo({ order, orderBy, page, rowsPerPage });
+    getData({ order, orderBy, page, rowsPerPage });
+  }, [order, orderBy, page, rowsPerPage, saveUsersPageInfo, getData]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -233,18 +263,17 @@ function AdminTable(props) {
     setDense(event.target.checked);
   };
 
-  const handleDateChange = (date) => {
-    setSelectedDate(date);
-    setDateEdited(formatDate(date));
-  };
-
   const handleEdit = (row) => {
     setOpen(true);
-    setSelectedDate(new Date(row.added));
-    setDateEdited(formatDate(new Date(row.added)));
-    setEditDetail(row.detail);
-    setEditDuration(row.duration);
-    setEditRecordId(row.id);
+    setEditFirstName(row.first_name);
+    setEditLastName(row.last_name);
+    setEditUserId(row.id);
+    setEditEmail(row.email);
+    setRole(row.role);
+  };
+
+  const handleRoleChange = (event) => {
+    setRole(event.target.value);
   };
 
   const handleClose = () => {
@@ -265,9 +294,8 @@ function AdminTable(props) {
   };
 
   const handleDelete = () => {
-    console.log("--------", selectedRow);
-    const { deleteRecord } = props;
-    deleteRecord({ id: selectedRow.id });
+    const { deleteUser } = props;
+    deleteUser({ id: selectedRow.id });
     handleDeleteClose();
   };
   // const emptyRows =
@@ -305,10 +333,11 @@ function AdminTable(props) {
                       scope="row"
                       padding="none"
                     >
-                      {row.detail}
+                      {row.first_name}
                     </TableCell>
-                    <TableCell align="left">{row.added}</TableCell>
-                    <TableCell align="right">{row.duration}</TableCell>
+                    <TableCell align="left">{row.last_name}</TableCell>
+                    <TableCell align="left">{row.email}</TableCell>
+                    <TableCell align="left">{row.role}</TableCell>
                     {actions ? (
                       <TableCell align="center">
                         <Button
@@ -370,54 +399,75 @@ function AdminTable(props) {
           <div className={classes.modalPaper}>
             <h2 id="transition-modal-title">Edit Details</h2>
             <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
-              <TextField
-                variant="outlined"
-                margin="normal"
-                required
-                fullWidth
-                id="detail"
-                label="Work Detail"
-                name="detail"
-                autoComplete="detail"
-                autoFocus
-                inputRef={register}
-                defaultValue={editDetail}
-              />
-              <Grid container spacing={3}>
-                <Grid item xs={6} sm={6}>
-                  <MuiPickersUtilsProvider utils={DateFnsUtils}>
-                    <KeyboardDatePicker
-                      disableToolbar
-                      variant="inline"
-                      format="MM/dd/yyyy"
-                      margin="normal"
-                      id="date-picker-inline"
-                      label="Choose Date"
-                      value={selectedDate}
-                      onChange={handleDateChange}
-                      KeyboardButtonProps={{
-                        "aria-label": "change date",
-                      }}
-                    />
-                  </MuiPickersUtilsProvider>
-                </Grid>
-                <Grid item xs={6} sm={6}>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={4}>
                   <TextField
+                    autoComplete="fname"
+                    name="first_name"
                     variant="outlined"
-                    type="number"
-                    margin="normal"
-                    required
                     fullWidth
-                    id="duration"
-                    label="Duration"
-                    name="duration"
-                    autoComplete="duration"
+                    id="firstName"
+                    label="First Name"
                     autoFocus
                     inputRef={register}
-                    inputProps={{ step: 0.1 }}
+                    defaultValue={editFirstName}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    variant="outlined"
+                    fullWidth
+                    id="lastName"
+                    label="Last Name"
+                    name="last_name"
+                    autoComplete="lname"
+                    inputRef={register}
+                    defaultValue={editLastName}
+                  />
+                </Grid>
+                <Grid xs={12} sm={4}>
+                  <FormControl className={classes.formControl}>
+                    <InputLabel id="select-label">Role</InputLabel>
+                    <Select
+                      labelId="select-label"
+                      id="demo-simple-select"
+                      value={role}
+                      required
+                      name="role"
+                      onChange={handleRoleChange}
+                      inputRef={register}
+                    >
+                      <MenuItem value={"regular"}>Regular User</MenuItem>
+                      <MenuItem value={"manager"}>Manager</MenuItem>
+                      {hasAdminAccess && (
+                        <MenuItem value={"admin"}>Admin</MenuItem>
+                      )}
+                    </Select>
+                  </FormControl>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    variant="outlined"
+                    fullWidth
+                    id="email"
+                    label="Email Address"
+                    name="email"
+                    autoComplete="email"
+                    inputRef={register}
                     error={error}
-                    helperText={error && "Please input valid working hour."}
-                    defaultValue={editDuration}
+                    helperText={error && errorLog}
+                    defaultValue={editEmail}
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    variant="outlined"
+                    fullWidth
+                    name="password"
+                    label="Password"
+                    type="password"
+                    id="password"
+                    inputRef={register}
                   />
                 </Grid>
               </Grid>
@@ -428,7 +478,7 @@ function AdminTable(props) {
                 color="primary"
                 className={classes.submit}
               >
-                Edit Record
+                Edit User
               </Button>
             </form>
           </div>
@@ -440,21 +490,18 @@ function AdminTable(props) {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">
-          {"Use Google's location service?"}
-        </DialogTitle>
+        <DialogTitle id="alert-dialog-title">{"Delete User"}</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Let Google help apps determine location. This means sending
-            anonymous location data to Google, even when no apps are running.
+            Are you sure to delete this user?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={handleDeleteClose} color="primary">
-            Disagree
+            No
           </Button>
           <Button onClick={handleDelete} color="primary" autoFocus>
-            Agree
+            Yes
           </Button>
         </DialogActions>
       </Dialog>
@@ -463,17 +510,17 @@ function AdminTable(props) {
 }
 
 const mapStateToProps = (state) => {
-  const { loading } = state.record;
+  const { me } = state.auth;
   return {
-    loading,
+    me,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    savePageInfo: (params) => dispatch(actions.saveRecordPageInfo(params)),
-    editRecord: (params) => dispatch(actions.editRecord(params)),
-    deleteRecord: (params) => dispatch(actions.deleteRecord(params)),
+    saveUsersPageInfo: (params) => dispatch(actions.saveUsersPageInfo(params)),
+    editUser: (params) => dispatch(actions.editUser(params)),
+    deleteUser: (params) => dispatch(actions.deleteUser(params)),
   };
 };
 

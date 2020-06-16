@@ -1,5 +1,5 @@
 import "date-fns";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Grid from "@material-ui/core/Grid";
 import DateFnsUtils from "@date-io/date-fns";
 import {
@@ -10,6 +10,7 @@ import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
 import Modal from "@material-ui/core/Modal";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 import Backdrop from "@material-ui/core/Backdrop";
 import Fade from "@material-ui/core/Fade";
 import { useForm } from "react-hook-form";
@@ -45,15 +46,25 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 function AddRecord(props) {
+  const { getTotalUsers, totalUsers } = props;
   const classes = useStyles();
+  const [userId, setUserId] = useState(null);
   const [open, setOpen] = useState(false);
   const [error, setError] = useState(false);
   const [dateAdded, setDateAdded] = useState(formatDate(new Date()));
   const [selectedDate, setSelectedDate] = useState(new Date());
 
+  useEffect(() => {
+    getTotalUsers();
+  }, []);
+
   const handleDateChange = (date) => {
     setSelectedDate(date);
     setDateAdded(formatDate(date));
+  };
+
+  const handleUserChange = (event, values) => {
+    setUserId(values.id);
   };
 
   const handleOpen = () => {
@@ -75,9 +86,8 @@ function AddRecord(props) {
       setError(true);
     } else {
       setError(false);
-      const { detail, duration } = data;
-      const { addOwnRecord } = props;
-      addOwnRecord({ detail, duration, added: dateAdded });
+      const { addRecord } = props;
+      addRecord({ account_user_id: userId, ...data, added: dateAdded });
       handleClose();
     }
   };
@@ -103,6 +113,23 @@ function AddRecord(props) {
           <div className={classes.paper}>
             <h2 id="transition-modal-title">Add Details</h2>
             <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
+              <Autocomplete
+                id="record-user"
+                options={totalUsers.data}
+                getOptionLabel={(option) =>
+                  `${option.first_name} ${option.last_name}`
+                }
+                onChange={handleUserChange}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    required
+                    label="Assign User"
+                    margin="normal"
+                    variant="outlined"
+                  />
+                )}
+              />
               <TextField
                 variant="outlined"
                 margin="normal"
@@ -171,14 +198,17 @@ function AddRecord(props) {
 
 const mapStateToProps = (state) => {
   const { loading } = state.record;
+  const { totalUsers } = state.admin;
   return {
+    totalUsers,
     loading,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    addOwnRecord: (params) => dispatch(actions.addOwnRecord(params)),
+    addRecord: (params) => dispatch(actions.addRecord(params)),
+    getTotalUsers: () => dispatch(actions.getTotalUsers()),
   };
 };
 

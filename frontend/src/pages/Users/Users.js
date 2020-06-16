@@ -19,19 +19,25 @@ const useStyles = makeStyles((theme) => ({
 
 const headCells = [
   {
-    id: "detail",
+    id: "first_name",
     align: "left",
     disablePadding: true,
-    label: "Detail",
+    label: "First Name",
   },
-  { id: "added", align: "left", disablePadding: false, label: "Date Added" },
-  { id: "duration", align: "right", disablePadding: false, label: "Duration" },
+  {
+    id: "last_name",
+    align: "left",
+    disablePadding: true,
+    label: "Last Name",
+  },
+  { id: "email", align: "left", disablePadding: false, label: "Email" },
+  { id: "role", align: "left", disablePadding: false, label: "Role" },
   { id: "action", align: "center", disablePadding: false, label: "Action" },
 ];
 
 function Users(props) {
   const classes = useStyles();
-  const { getRecords, records } = props;
+  const { getUsers, users } = props;
   return (
     <div className={classes.root}>
       <Grid container spacing={3} justify="center">
@@ -41,9 +47,9 @@ function Users(props) {
         <Grid item xs={10}>
           <UsersTable
             title="Users"
-            getData={getRecords}
-            tableData={records ? records : []}
-            totalPage={records ? records.total_page : 0}
+            getData={getUsers}
+            tableData={users ? users : []}
+            totalUsers={users ? users.total_users : 0}
             headCells={headCells}
             actions={{
               exist: true,
@@ -56,16 +62,15 @@ function Users(props) {
 }
 
 const mapStateToProps = (state) => {
-  const { loading, records } = state.record;
+  const { users } = state.admin;
   return {
-    loading,
-    records,
+    users,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
-    getRecords: (params) => dispatch(actions.getRecords(params)),
+    getUsers: (params) => dispatch(actions.getUsers(params)),
   };
 };
 

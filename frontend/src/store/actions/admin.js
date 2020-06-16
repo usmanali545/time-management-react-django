@@ -1,6 +1,7 @@
 import {
   ADD_USER,
   GET_USERS,
+  GET_TOTAL_USERS,
   EDIT_USER,
   DELETE_USER,
   SAVE_USERS_PAGE_INFO,
@@ -20,6 +21,10 @@ export const deleteUser = (payload) => {
 
 export const getUsers = (payload) => {
   return { type: GET_USERS, payload };
+};
+
+export const getTotalUsers = () => {
+  return { type: GET_TOTAL_USERS };
 };
 
 export const saveUsersPageInfo = (payload) => {
