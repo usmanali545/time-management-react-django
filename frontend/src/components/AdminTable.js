@@ -210,7 +210,6 @@ function AdminTable(props) {
       setError(false);
       const { detail, duration, account_user } = data;
       const { editRecord } = props;
-      console.log();
       editRecord({
         id: editRecordId,
         account_user_id: editRecordUserId,

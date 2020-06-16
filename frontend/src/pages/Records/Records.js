@@ -41,7 +41,7 @@ function Record(props) {
         </Grid>
         <Grid item xs={10}>
           <AdminTable
-            title="Working Hour Records"
+            title="All Working Hour Records"
             getData={getRecords}
             tableData={records ? records : []}
             totalRecords={records ? records.total_records : 0}

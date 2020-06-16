@@ -22,6 +22,7 @@ class AccountUser(AbstractUser):
         choices=ROLES,
         default=REGULAR,
     )
+    working_hour = models.DecimalField(max_digits=24, decimal_places=1, default=8)
 
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []

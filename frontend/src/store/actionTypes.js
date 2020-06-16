@@ -21,3 +21,5 @@ export const DELETE_USER = "DELETE_USER";
 export const GET_USERS = "GET_USERS";
 export const GET_TOTAL_USERS = "GET_TOTAL_USERS";
 export const SAVE_USERS_PAGE_INFO = "SAVE_USERS_PAGE_INFO";
+export const GET_WORKING_HOUR = "GET_WORKING_HOUR";
+export const SET_WORKING_HOUR = "SET_WORKING_HOUR";

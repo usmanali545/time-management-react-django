@@ -8,6 +8,22 @@ from apps.record.serializers import RecordSerializer, OwnRecordSerializer
 from apps.utils import IsManagerOrAdmin, IsAdmin
 from django.db.models import F
 
+
+class WorkingHourView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def put(self, request, *args, **kwargs):
+        working_hour = request.data.get("working_hour", "")
+        user = self.request.user
+        user.working_hour = working_hour
+        user.save()
+
+        return Response(
+            data={
+                "working_hour": user.working_hour
+            })
+
+
 class OwnRecordViewSet(viewsets.ModelViewSet):
     serializer_class = OwnRecordSerializer
     permission_classes = [permissions.IsAuthenticated]

@@ -183,3 +183,32 @@ export function* getOwnRecordsSaga(action) {
     yield put({ type: requestFailed("GET_OWN_RECORDS") });
   }
 }
+
+export function* setWorkingHourSaga(action) {
+  try {
+    const state = yield select();
+    yield put({ type: requestPending("SET_WORKING_HOUR") });
+    const response = yield call(
+      http,
+      "/workinghour/",
+      "PUT",
+      {
+        ...action.payload,
+      },
+      true
+    );
+    yield put({
+      type: "SET_USER_INFO",
+      payload: {
+        ...state.auth.me,
+        working_hour: response.data.working_hour,
+      },
+    });
+    yield put({
+      type: requestSuccess("SET_WORKING_HOUR"),
+    });
+    yield put(push("/main"));
+  } catch (error) {
+    yield put({ type: requestFailed("SET_WORKING_HOUR") });
+  }
+}

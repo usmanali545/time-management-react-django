@@ -16,6 +16,7 @@ import {
   DELETE_USER,
   GET_USERS,
   GET_TOTAL_USERS,
+  SET_WORKING_HOUR,
 } from "../actionTypes";
 import { signupSaga, signinSaga, signoutSaga } from "./auth";
 import {
@@ -27,6 +28,7 @@ import {
   editRecordSaga,
   deleteRecordSaga,
   getRecordsSaga,
+  setWorkingHourSaga,
 } from "./record";
 
 import {
@@ -55,5 +57,6 @@ export default function* rootSaga() {
     takeEvery(DELETE_USER, deleteUserSaga),
     takeEvery(GET_USERS, getUsersSaga),
     takeEvery(GET_TOTAL_USERS, getTotalUsersSaga),
+    takeEvery(SET_WORKING_HOUR, setWorkingHourSaga),
   ]);
 }

@@ -1,17 +1,17 @@
 import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
-import AddRecord from "./AddRecord";
 import { connect } from "react-redux";
 import * as actions from "../../store/actions";
+import AddRecord from "./AddRecord";
+import SetWorkingHour from "./SetWorkingHour";
 import OwnRecordTable from "../../components/OwnRecordTable";
 
 const useStyles = makeStyles((theme) => ({
   root: {
     flexGrow: 1,
   },
-  recordsTable: {
-    padding: theme.spacing(2),
+  AddRecord: {
     textAlign: "center",
     color: theme.palette.text.secondary,
   },
@@ -35,12 +35,15 @@ function Main(props) {
   return (
     <div className={classes.root}>
       <Grid container spacing={3} justify="center">
+        <Grid item xs={6} sm={6}>
+          <AddRecord className={classes.AddRecord} />
+        </Grid>
         <Grid item xs={6} sm={3}>
-          <AddRecord />
+          <SetWorkingHour />
         </Grid>
         <Grid item xs={10}>
           <OwnRecordTable
-            title="Working Hour Records"
+            title="My Records"
             getData={getOwnRecords}
             tableData={records ? records : []}
             totalRecords={records ? records.total_records : 0}

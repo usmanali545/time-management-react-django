@@ -7,6 +7,7 @@ import {
 import {
   SAVE_RECORD_PAGE_INFO,
   SAVE_OWN_RECORD_PAGE_INFO,
+  SET_WORKING_HOUR,
 } from "../actionTypes";
 
 const initialState = {
@@ -149,6 +150,25 @@ export const recordReducer = function (state = initialState, action) {
         ...state,
         loading: true,
         status: requestFailed("GET_OWN_RECORDS"),
+        error: action.payload,
+      };
+    case requestPending("SET_WORKING_HOUR"):
+      return {
+        ...state,
+        loading: true,
+        status: requestPending("SET_WORKING_HOUR"),
+      };
+    case requestSuccess("SET_WORKING_HOUR"):
+      return {
+        ...state,
+        loading: false,
+        status: requestSuccess("SET_WORKING_HOUR"),
+      };
+    case requestFailed("SET_WORKING_HOUR"):
+      return {
+        ...state,
+        loading: true,
+        status: requestFailed("SET_WORKING_HOUR"),
         error: action.payload,
       };
     case SAVE_OWN_RECORD_PAGE_INFO:

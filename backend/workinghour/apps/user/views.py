@@ -33,7 +33,8 @@ class LoginView(APIView):
                     "email": user.email,
                     "first_name": user.first_name,
                     "last_name": user.last_name,
-                    "role": user.role
+                    "role": user.role,
+                    "working_hour": user.working_hour
                 })
         return Response(status=status.HTTP_401_UNAUTHORIZED)
 

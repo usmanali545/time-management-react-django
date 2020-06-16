@@ -9,6 +9,7 @@ import {
   EDIT_OWN_RECORD,
   DELETE_OWN_RECORD,
   SAVE_OWN_RECORD_PAGE_INFO,
+  SET_WORKING_HOUR,
 } from "../actionTypes";
 
 export const addRecord = (payload) => {
@@ -49,4 +50,8 @@ export const getOwnRecords = (payload) => {
 
 export const saveOwnRecordPageInfo = (payload) => {
   return { type: SAVE_OWN_RECORD_PAGE_INFO, payload };
+};
+
+export const setWorkingHour = (payload) => {
+  return { type: SET_WORKING_HOUR, payload };
 };
