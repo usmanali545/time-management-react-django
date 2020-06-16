@@ -169,6 +169,12 @@ const useStyles = makeStyles((theme) => ({
     boxShadow: theme.shadows[5],
     padding: theme.spacing(2, 4, 3),
   },
+  backgroundRed: {
+    backgroundColor: "#f381a7",
+  },
+  backgroundGreen: {
+    backgroundColor: "#a2cf6e",
+  },
 }));
 
 function OwnRecordTable(props) {
@@ -179,6 +185,7 @@ function OwnRecordTable(props) {
   const [dense, setDense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const {
+    me,
     getData,
     tableData,
     totalRecords,
@@ -209,7 +216,6 @@ function OwnRecordTable(props) {
       setError(false);
       const { detail, duration } = data;
       const { editOwnRecord } = props;
-      console.log();
       editOwnRecord({ id: editRecordId, detail, duration, added: dateEdited });
       handleClose();
     }
@@ -303,7 +309,16 @@ function OwnRecordTable(props) {
                 const labelId = `admin-table-checkbox-${index}`;
 
                 return (
-                  <TableRow hover tabIndex={-1} key={index}>
+                  <TableRow
+                    className={
+                      row.duration_sum <= parseFloat(me.working_hour)
+                        ? classes.backgroundRed
+                        : classes.backgroundGreen
+                    }
+                    hover
+                    tabIndex={-1}
+                    key={index}
+                  >
                     <TableCell
                       component="th"
                       id={labelId}
@@ -318,7 +333,7 @@ function OwnRecordTable(props) {
                       <TableCell align="center">
                         <Button
                           className={classes.actionButtons}
-                          variant="outlined"
+                          variant="contained"
                           color="primary"
                           onClick={() => handleEdit(row)}
                         >
@@ -326,8 +341,8 @@ function OwnRecordTable(props) {
                         </Button>
                         <Button
                           className={classes.actionButtons}
-                          variant="outlined"
-                          color="secondary"
+                          variant="contained"
+                          // color="secondary"
                           onClick={() => handleDeleteOpen(row)}
                         >
                           Delete
@@ -465,8 +480,10 @@ function OwnRecordTable(props) {
 }
 
 const mapStateToProps = (state) => {
+  const { me } = state.auth;
   const { loading } = state.record;
   return {
+    me,
     loading,
   };
 };

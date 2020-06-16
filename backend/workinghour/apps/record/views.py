@@ -51,7 +51,7 @@ class OwnRecordViewSet(viewsets.ModelViewSet):
 
     def list(self, request):
         queryset, total_records = self.get_queryset()
-        serializer = RecordSerializer(queryset, many=True)
+        serializer = OwnRecordSerializer(queryset, many=True, context={'request': request})
         return Response(data={"total_records": total_records, "data": serializer.data})
 
 
