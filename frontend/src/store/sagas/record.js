@@ -7,6 +7,7 @@ import {
 } from "../../utils/helpers/request";
 import { http } from "../../utils/helpers/http";
 import { GET_RECORDS, GET_OWN_RECORDS } from "../actionTypes";
+import { exportSheet } from "../../utils/helpers/helper";
 
 export function* addRecordSaga(action) {
   try {
@@ -24,7 +25,7 @@ export function* addRecordSaga(action) {
     yield put({ type: requestSuccess("ADD_RECORD") });
     yield put({
       type: GET_RECORDS,
-      payload: { order: "desc", ...state.record.pageInfo },
+      payload: { order: "desc", ...state.record.recordPageInfo },
     });
     yield put(push("/records"));
   } catch (error) {
@@ -48,7 +49,7 @@ export function* editRecordSaga(action) {
     yield put({ type: requestSuccess("EDIT_RECORD") });
     yield put({
       type: GET_RECORDS,
-      payload: state.record.pageInfo,
+      payload: state.record.recordPageInfo,
     });
     yield put(push("/records"));
   } catch (error) {
@@ -72,7 +73,7 @@ export function* deleteRecordSaga(action) {
     yield put({ type: requestSuccess("DELETE_RECORD") });
     yield put({
       type: GET_RECORDS,
-      payload: state.record.pageInfo,
+      payload: state.record.recordPageInfo,
     });
     yield put(push("/records"));
   } catch (error) {
@@ -114,7 +115,7 @@ export function* addOwnRecordSaga(action) {
     yield put({ type: requestSuccess("ADD_OWN_RECORD") });
     yield put({
       type: GET_OWN_RECORDS,
-      payload: { order: "desc", ...state.record.pageInfo },
+      payload: { order: "desc", ...state.record.ownRecordPageInfo },
     });
     yield put(push("/main"));
   } catch (error) {
@@ -162,7 +163,7 @@ export function* deleteOwnRecordSaga(action) {
     yield put({ type: requestSuccess("DELETE_OWN_RECORD") });
     yield put({
       type: GET_OWN_RECORDS,
-      payload: state.record.pageInfo,
+      payload: state.record.ownRecordPageInfo,
     });
     yield put(push("/main"));
   } catch (error) {
@@ -210,5 +211,24 @@ export function* setWorkingHourSaga(action) {
     yield put(push("/main"));
   } catch (error) {
     yield put({ type: requestFailed("SET_WORKING_HOUR") });
+  }
+}
+
+export function* exportOwnRecordsSaga(action) {
+  try {
+    yield put({ type: requestPending("EXPORT_OWN_RECORDS") });
+    const response = yield call(http, "/own/", "GET", {}, true, {
+      ...action.payload,
+      order: "desc",
+      orderBy: "added",
+    });
+    exportSheet(response.data);
+    yield put({
+      type: requestSuccess("EXPORT_OWN_RECORDS"),
+      payload: response.data,
+    });
+    yield put(push("/main"));
+  } catch (error) {
+    yield put({ type: requestFailed("EXPORT_OWN_RECORDS") });
   }
 }

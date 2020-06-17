@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect } from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import { connect } from "react-redux";
@@ -6,6 +6,7 @@ import * as actions from "../../store/actions";
 import AddRecord from "./AddRecord";
 import SetWorkingHour from "./SetWorkingHour";
 import OwnRecordTable from "../../components/OwnRecordTable";
+import { Button } from "@material-ui/core";
 
 const useStyles = makeStyles((theme) => ({
   root: {
@@ -14,6 +15,14 @@ const useStyles = makeStyles((theme) => ({
   AddRecord: {
     textAlign: "center",
     color: theme.palette.text.secondary,
+  },
+  settings: {
+    marginTop: "20px",
+  },
+  button: {
+    padding: theme.spacing(2),
+    textAlign: "center",
+    color: "white",
   },
 }));
 
@@ -31,22 +40,36 @@ const headCells = [
 
 function Main(props) {
   const classes = useStyles();
-  const { getOwnRecords, records } = props;
+  const { exportRecords, ownRecordPageInfo } = props;
+
+  const handleExport = () => {
+    const { from, to } = ownRecordPageInfo;
+    exportRecords({ from, to });
+  };
+
   return (
     <div className={classes.root}>
       <Grid container spacing={3} justify="center">
-        <Grid item xs={6} sm={6}>
+        <Grid className={classes.settings} item xs={6} sm={1}></Grid>
+        <Grid className={classes.settings} item xs={6} sm={8}>
           <AddRecord className={classes.AddRecord} />
         </Grid>
-        <Grid item xs={6} sm={3}>
+        <Grid className={classes.settings} item xs={6} sm={2}>
           <SetWorkingHour />
+        </Grid>
+        <Grid className={classes.settings} item xs={6} sm={1}>
+          <Button
+            variant="contained"
+            className={classes.button}
+            color="primary"
+            onClick={handleExport}
+          >
+            Export
+          </Button>
         </Grid>
         <Grid item xs={10}>
           <OwnRecordTable
             title="My Records"
-            getData={getOwnRecords}
-            tableData={records ? records : []}
-            totalRecords={records ? records.total_records : 0}
             headCells={headCells}
             actions={{
               exist: true,
@@ -59,15 +82,16 @@ function Main(props) {
 }
 
 const mapStateToProps = (state) => {
-  const { loading, records } = state.record;
+  const { loading, ownRecordPageInfo } = state.record;
   return {
     loading,
-    records,
+    ownRecordPageInfo,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    exportRecords: (params) => dispatch(actions.exportOwnRecords(params)),
     getOwnRecords: (params) => dispatch(actions.getOwnRecords(params)),
   };
 };

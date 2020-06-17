@@ -47,9 +47,9 @@ function Users(props) {
         <Grid item xs={10}>
           <UsersTable
             title="All Users"
-            getData={getUsers}
-            tableData={users ? users : []}
-            totalUsers={users ? users.total_users : 0}
+            // getData={getUsers}
+            // tableData={users ? users : []}
+            // totalUsers={users ? users.total_users : 0}
             headCells={headCells}
             actions={{
               exist: true,

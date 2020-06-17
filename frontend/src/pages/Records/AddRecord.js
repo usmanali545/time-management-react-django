@@ -115,7 +115,7 @@ function AddRecord(props) {
             <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
               <Autocomplete
                 id="record-user"
-                options={totalUsers.data}
+                options={totalUsers && totalUsers.data}
                 getOptionLabel={(option) =>
                   `${option.first_name} ${option.last_name}`
                 }

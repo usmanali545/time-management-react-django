@@ -42,9 +42,9 @@ function Record(props) {
         <Grid item xs={10}>
           <AdminTable
             title="All Working Hour Records"
-            getData={getRecords}
-            tableData={records ? records : []}
-            totalRecords={records ? records.total_records : 0}
+            // getData={getRecords}
+            // tableData={records ? records : {}}
+            // totalRecords={records ? records.total_records : 0}
             headCells={headCells}
             actions={{
               exist: true,

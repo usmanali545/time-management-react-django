@@ -97,7 +97,33 @@ const useToolbarStyles = makeStyles((theme) => ({
 }));
 
 const TableToolbar = (props) => {
+  const { saveOwnRecordPageInfo, ownRecordPageInfo, getOwnRecords } = props;
   const classes = useToolbarStyles();
+  const [selectedFromDate, setSelectedFromDate] = useState(
+    ownRecordPageInfo.from
+  );
+  const [selectedToDate, setSelectedToDate] = useState(ownRecordPageInfo.to);
+
+  useEffect(() => {
+    saveOwnRecordPageInfo({
+      ...ownRecordPageInfo,
+      from: selectedFromDate,
+      to: selectedToDate,
+    });
+    getOwnRecords({
+      ...ownRecordPageInfo,
+      from: selectedFromDate,
+      to: selectedToDate,
+    });
+  }, [selectedFromDate, selectedToDate]);
+
+  const handleDateFromChange = (date) => {
+    setSelectedFromDate(formatDate(new Date(date)));
+  };
+
+  const handleDateToChange = (date) => {
+    setSelectedToDate(formatDate(new Date(date)));
+  };
 
   return (
     <Toolbar className={classes.root}>
@@ -109,12 +135,44 @@ const TableToolbar = (props) => {
       >
         {props.title}
       </Typography>
-
-      <Tooltip title="Filter list">
-        <IconButton aria-label="filter list">
-          <FilterListIcon />
-        </IconButton>
-      </Tooltip>
+      <Grid container spacing={3}>
+        <Grid item xs={6} sm={6}>
+          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <KeyboardDatePicker
+              disableToolbar
+              variant="inline"
+              format="MM/dd/yyyy"
+              margin="normal"
+              id="date-picker-inline"
+              label="From"
+              value={selectedFromDate}
+              onChange={handleDateFromChange}
+              KeyboardButtonProps={{
+                "aria-label": "change date",
+              }}
+              maxDate={selectedToDate}
+            />
+          </MuiPickersUtilsProvider>
+        </Grid>
+        <Grid item xs={6} sm={6}>
+          <MuiPickersUtilsProvider utils={DateFnsUtils}>
+            <KeyboardDatePicker
+              disableToolbar
+              variant="inline"
+              format="MM/dd/yyyy"
+              margin="normal"
+              id="date-picker-inline"
+              label="To"
+              value={selectedToDate}
+              onChange={handleDateToChange}
+              KeyboardButtonProps={{
+                "aria-label": "change date",
+              }}
+              minDate={selectedFromDate}
+            />
+          </MuiPickersUtilsProvider>
+        </Grid>
+      </Grid>
     </Toolbar>
   );
 };
@@ -186,12 +244,12 @@ function OwnRecordTable(props) {
   const [rowsPerPage, setRowsPerPage] = useState(5);
   const {
     me,
-    getData,
-    tableData,
-    totalRecords,
+    getOwnRecords,
+    ownRecords,
     headCells,
     actions,
     saveOwnRecordPageInfo,
+    ownRecordPageInfo,
   } = props;
 
   // Edit Modal
@@ -222,9 +280,15 @@ function OwnRecordTable(props) {
   };
 
   useEffect(() => {
-    saveOwnRecordPageInfo({ order, orderBy, page, rowsPerPage });
-    getData({ order, orderBy, page, rowsPerPage });
-  }, [order, orderBy, page, rowsPerPage, saveOwnRecordPageInfo, getData]);
+    saveOwnRecordPageInfo({
+      ...ownRecordPageInfo,
+      order,
+      orderBy,
+      page,
+      rowsPerPage,
+    });
+    getOwnRecords({ ...ownRecordPageInfo, order, orderBy, page, rowsPerPage });
+  }, [order, orderBy, page, rowsPerPage, saveOwnRecordPageInfo, getOwnRecords]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -287,7 +351,12 @@ function OwnRecordTable(props) {
   return (
     <div className={classes.root}>
       <Paper className={classes.paper}>
-        <TableToolbar title={props.title} />
+        <TableToolbar
+          title={props.title}
+          saveOwnRecordPageInfo={saveOwnRecordPageInfo}
+          ownRecordPageInfo={ownRecordPageInfo}
+          getOwnRecords={getOwnRecords}
+        />
         <TableContainer>
           <Table
             className={classes.table}
@@ -305,53 +374,54 @@ function OwnRecordTable(props) {
             <TableBody>
               {/* {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) */}
-              {tableData.data.map((row, index) => {
-                const labelId = `admin-table-checkbox-${index}`;
+              {ownRecords &&
+                ownRecords.data.map((row, index) => {
+                  const labelId = `admin-table-checkbox-${index}`;
 
-                return (
-                  <TableRow
-                    className={
-                      row.duration_sum <= parseFloat(me.working_hour)
-                        ? classes.backgroundRed
-                        : classes.backgroundGreen
-                    }
-                    hover
-                    tabIndex={-1}
-                    key={index}
-                  >
-                    <TableCell
-                      component="th"
-                      id={labelId}
-                      scope="row"
-                      padding="none"
+                  return (
+                    <TableRow
+                      className={
+                        row.duration_sum <= parseFloat(me.working_hour)
+                          ? classes.backgroundRed
+                          : classes.backgroundGreen
+                      }
+                      hover
+                      tabIndex={-1}
+                      key={index}
                     >
-                      {row.detail}
-                    </TableCell>
-                    <TableCell align="left">{row.added}</TableCell>
-                    <TableCell align="right">{row.duration}</TableCell>
-                    {actions ? (
-                      <TableCell align="center">
-                        <Button
-                          className={classes.actionButtons}
-                          variant="contained"
-                          color="primary"
-                          onClick={() => handleEdit(row)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          className={classes.actionButtons}
-                          variant="contained"
-                          // color="secondary"
-                          onClick={() => handleDeleteOpen(row)}
-                        >
-                          Delete
-                        </Button>
+                      <TableCell
+                        component="th"
+                        id={labelId}
+                        scope="row"
+                        padding="none"
+                      >
+                        {row.detail}
                       </TableCell>
-                    ) : null}
-                  </TableRow>
-                );
-              })}
+                      <TableCell align="left">{row.added}</TableCell>
+                      <TableCell align="right">{row.duration}</TableCell>
+                      {actions ? (
+                        <TableCell align="center">
+                          <Button
+                            className={classes.actionButtons}
+                            variant="contained"
+                            color="primary"
+                            onClick={() => handleEdit(row)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            className={classes.actionButtons}
+                            variant="contained"
+                            // color="secondary"
+                            onClick={() => handleDeleteOpen(row)}
+                          >
+                            Delete
+                          </Button>
+                        </TableCell>
+                      ) : null}
+                    </TableRow>
+                  );
+                })}
               {/* {emptyRows > 0 && (
                 <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
                   <TableCell colSpan={6} />
@@ -363,7 +433,7 @@ function OwnRecordTable(props) {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={totalRecords}
+          count={ownRecords && ownRecords.total_records}
           rowsPerPage={rowsPerPage}
           page={page}
           onChangePage={handleChangePage}
@@ -481,10 +551,13 @@ function OwnRecordTable(props) {
 
 const mapStateToProps = (state) => {
   const { me } = state.auth;
+  const { ownRecordPageInfo, ownRecords } = state.record;
   const { loading } = state.record;
   return {
     me,
+    ownRecords,
     loading,
+    ownRecordPageInfo,
   };
 };
 
@@ -494,6 +567,7 @@ const mapDispatchToProps = (dispatch) => {
       dispatch(actions.saveOwnRecordPageInfo(params)),
     editOwnRecord: (params) => dispatch(actions.editOwnRecord(params)),
     deleteOwnRecord: (params) => dispatch(actions.deleteOwnRecord(params)),
+    getOwnRecords: (params) => dispatch(actions.getOwnRecords(params)),
   };
 };
 

@@ -178,14 +178,7 @@ function AdminTable(props) {
   const [page, setPage] = useState(0);
   const [dense, setDense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const {
-    getData,
-    tableData,
-    totalRecords,
-    headCells,
-    actions,
-    savePageInfo,
-  } = props;
+  const { headCells, actions, savePageInfo, getRecords, records } = props;
 
   // Edit Modal
   const [open, setOpen] = useState(false);
@@ -223,8 +216,8 @@ function AdminTable(props) {
 
   useEffect(() => {
     savePageInfo({ order, orderBy, page, rowsPerPage });
-    getData({ order, orderBy, page, rowsPerPage });
-  }, [order, orderBy, page, rowsPerPage, savePageInfo, getData]);
+    getRecords({ order, orderBy, page, rowsPerPage });
+  }, [order, orderBy, page, rowsPerPage, savePageInfo, getRecords]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -307,47 +300,48 @@ function AdminTable(props) {
             <TableBody>
               {/* {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) */}
-              {tableData.data.map((row, index) => {
-                const labelId = `admin-table-checkbox-${index}`;
+              {records &&
+                records.data.map((row, index) => {
+                  const labelId = `admin-table-checkbox-${index}`;
 
-                return (
-                  <TableRow hover tabIndex={-1} key={index}>
-                    <TableCell
-                      component="th"
-                      id={labelId}
-                      scope="row"
-                      padding="none"
-                    >
-                      {row.full_name}
-                    </TableCell>
-                    <TableCell id={labelId} scope="row" padding="none">
-                      {row.detail}
-                    </TableCell>
-                    <TableCell align="left">{row.added}</TableCell>
-                    <TableCell align="right">{row.duration}</TableCell>
-                    {actions ? (
-                      <TableCell align="center">
-                        <Button
-                          className={classes.actionButtons}
-                          variant="outlined"
-                          color="primary"
-                          onClick={() => handleEdit(row)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          className={classes.actionButtons}
-                          variant="outlined"
-                          color="secondary"
-                          onClick={() => handleDeleteOpen(row)}
-                        >
-                          Delete
-                        </Button>
+                  return (
+                    <TableRow hover tabIndex={-1} key={index}>
+                      <TableCell
+                        component="th"
+                        id={labelId}
+                        scope="row"
+                        padding="none"
+                      >
+                        {row.full_name}
                       </TableCell>
-                    ) : null}
-                  </TableRow>
-                );
-              })}
+                      <TableCell id={labelId} scope="row" padding="none">
+                        {row.detail}
+                      </TableCell>
+                      <TableCell align="left">{row.added}</TableCell>
+                      <TableCell align="right">{row.duration}</TableCell>
+                      {actions ? (
+                        <TableCell align="center">
+                          <Button
+                            className={classes.actionButtons}
+                            variant="outlined"
+                            color="primary"
+                            onClick={() => handleEdit(row)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            className={classes.actionButtons}
+                            variant="outlined"
+                            color="secondary"
+                            onClick={() => handleDeleteOpen(row)}
+                          >
+                            Delete
+                          </Button>
+                        </TableCell>
+                      ) : null}
+                    </TableRow>
+                  );
+                })}
               {/* {emptyRows > 0 && (
                 <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
                   <TableCell colSpan={6} />
@@ -359,7 +353,7 @@ function AdminTable(props) {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={totalRecords}
+          count={records ? records.total_records : 0}
           rowsPerPage={rowsPerPage}
           page={page}
           onChangePage={handleChangePage}
@@ -476,14 +470,16 @@ function AdminTable(props) {
 }
 
 const mapStateToProps = (state) => {
-  const { loading } = state.record;
+  const { loading, records } = state.record;
   return {
+    records,
     loading,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    getRecords: (params) => dispatch(actions.getRecords(params)),
     savePageInfo: (params) => dispatch(actions.saveRecordPageInfo(params)),
     editRecord: (params) => dispatch(actions.editRecord(params)),
     deleteRecord: (params) => dispatch(actions.deleteRecord(params)),

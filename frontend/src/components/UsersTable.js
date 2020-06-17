@@ -44,7 +44,7 @@ import Select from "@material-ui/core/Select";
 import Alert from "@material-ui/lab/Alert";
 import { validateEmail } from "../utils/helpers/validation";
 
-function AdminTableHead(props) {
+function UsersTableHead(props) {
   const { classes, order, orderBy, onRequestSort, headCells } = props;
   const createSortHandler = (property) => (event) => {
     onRequestSort(event, property);
@@ -85,7 +85,7 @@ function AdminTableHead(props) {
   );
 }
 
-AdminTableHead.propTypes = {
+UsersTableHead.propTypes = {
   classes: PropTypes.object.isRequired,
   onRequestSort: PropTypes.func.isRequired,
   order: PropTypes.oneOf(["asc", "desc"]).isRequired,
@@ -185,12 +185,11 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 
-function AdminTable(props) {
+function UsersTable(props) {
   const {
     me,
-    getData,
-    tableData,
-    totalPage,
+    getUsers,
+    users,
     headCells,
     actions,
     saveUsersPageInfo,
@@ -241,8 +240,8 @@ function AdminTable(props) {
 
   useEffect(() => {
     saveUsersPageInfo({ order, orderBy, page, rowsPerPage });
-    getData({ order, orderBy, page, rowsPerPage });
-  }, [order, orderBy, page, rowsPerPage, saveUsersPageInfo, getData]);
+    getUsers({ order, orderBy, page, rowsPerPage });
+  }, [order, orderBy, page, rowsPerPage, saveUsersPageInfo, getUsers]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -312,7 +311,7 @@ function AdminTable(props) {
             size={dense ? "small" : "medium"}
             aria-label="admin table"
           >
-            <AdminTableHead
+            <UsersTableHead
               classes={classes}
               order={order}
               orderBy={orderBy}
@@ -322,45 +321,46 @@ function AdminTable(props) {
             <TableBody>
               {/* {stableSort(rows, getComparator(order, orderBy))
                 .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) */}
-              {tableData.data.map((row, index) => {
-                const labelId = `admin-table-checkbox-${index}`;
+              {users &&
+                users.data.map((row, index) => {
+                  const labelId = `admin-table-checkbox-${index}`;
 
-                return (
-                  <TableRow hover tabIndex={-1} key={index}>
-                    <TableCell
-                      component="th"
-                      id={labelId}
-                      scope="row"
-                      padding="none"
-                    >
-                      {row.first_name}
-                    </TableCell>
-                    <TableCell align="left">{row.last_name}</TableCell>
-                    <TableCell align="left">{row.email}</TableCell>
-                    <TableCell align="left">{row.role}</TableCell>
-                    {actions ? (
-                      <TableCell align="center">
-                        <Button
-                          className={classes.actionButtons}
-                          variant="outlined"
-                          color="primary"
-                          onClick={() => handleEdit(row)}
-                        >
-                          Edit
-                        </Button>
-                        <Button
-                          className={classes.actionButtons}
-                          variant="outlined"
-                          color="secondary"
-                          onClick={() => handleDeleteOpen(row)}
-                        >
-                          Delete
-                        </Button>
+                  return (
+                    <TableRow hover tabIndex={-1} key={index}>
+                      <TableCell
+                        component="th"
+                        id={labelId}
+                        scope="row"
+                        padding="none"
+                      >
+                        {row.first_name}
                       </TableCell>
-                    ) : null}
-                  </TableRow>
-                );
-              })}
+                      <TableCell align="left">{row.last_name}</TableCell>
+                      <TableCell align="left">{row.email}</TableCell>
+                      <TableCell align="left">{row.role}</TableCell>
+                      {actions ? (
+                        <TableCell align="center">
+                          <Button
+                            className={classes.actionButtons}
+                            variant="outlined"
+                            color="primary"
+                            onClick={() => handleEdit(row)}
+                          >
+                            Edit
+                          </Button>
+                          <Button
+                            className={classes.actionButtons}
+                            variant="outlined"
+                            color="secondary"
+                            onClick={() => handleDeleteOpen(row)}
+                          >
+                            Delete
+                          </Button>
+                        </TableCell>
+                      ) : null}
+                    </TableRow>
+                  );
+                })}
               {/* {emptyRows > 0 && (
                 <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
                   <TableCell colSpan={6} />
@@ -372,7 +372,7 @@ function AdminTable(props) {
         <TablePagination
           rowsPerPageOptions={[5, 10, 25]}
           component="div"
-          count={totalPage}
+          count={users && users.total_users}
           rowsPerPage={rowsPerPage}
           page={page}
           onChangePage={handleChangePage}
@@ -510,18 +510,21 @@ function AdminTable(props) {
 }
 
 const mapStateToProps = (state) => {
+  const { users } = state.admin;
   const { me } = state.auth;
   return {
     me,
+    users,
   };
 };
 
 const mapDispatchToProps = (dispatch) => {
   return {
+    getUsers: (params) => dispatch(actions.getUsers(params)),
     saveUsersPageInfo: (params) => dispatch(actions.saveUsersPageInfo(params)),
     editUser: (params) => dispatch(actions.editUser(params)),
     deleteUser: (params) => dispatch(actions.deleteUser(params)),
   };
 };
 
-export default connect(mapStateToProps, mapDispatchToProps)(AdminTable);
+export default connect(mapStateToProps, mapDispatchToProps)(UsersTable);

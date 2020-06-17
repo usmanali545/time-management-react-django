@@ -3,6 +3,7 @@ import {
   requestSuccess,
   requestFailed,
 } from "../../utils/helpers/request";
+import { formatDate } from "../../utils/helpers/helper";
 
 import {
   SAVE_RECORD_PAGE_INFO,
@@ -20,12 +21,16 @@ const initialState = {
     orderBy: "added",
     page: 0,
     rowsPerPage: 5,
+    from: formatDate(new Date()),
+    to: formatDate(new Date()),
   },
   recordPageInfo: {
     order: "desc",
     orderBy: "added",
     page: 0,
     rowsPerPage: 5,
+    from: formatDate(new Date()),
+    to: formatDate(new Date()),
   },
 };
 
@@ -141,7 +146,7 @@ export const recordReducer = function (state = initialState, action) {
     case requestSuccess("GET_OWN_RECORDS"):
       return {
         ...state,
-        records: action.payload,
+        ownRecords: action.payload,
         loading: false,
         status: requestSuccess("GET_OWN_RECORDS"),
       };
@@ -169,6 +174,25 @@ export const recordReducer = function (state = initialState, action) {
         ...state,
         loading: true,
         status: requestFailed("SET_WORKING_HOUR"),
+        error: action.payload,
+      };
+    case requestPending("EXPORT_OWN_RECORDS"):
+      return {
+        ...state,
+        loading: true,
+        status: requestPending("EXPORT_OWN_RECORDS"),
+      };
+    case requestSuccess("EXPORT_OWN_RECORDS"):
+      return {
+        ...state,
+        loading: false,
+        status: requestSuccess("EXPORT_OWN_RECORDS"),
+      };
+    case requestFailed("EXPORT_OWN_RECORDS"):
+      return {
+        ...state,
+        loading: true,
+        status: requestFailed("EXPORT_OWN_RECORDS"),
         error: action.payload,
       };
     case SAVE_OWN_RECORD_PAGE_INFO:
