@@ -28,9 +28,9 @@ class OwnRecordSerializer(serializers.ModelSerializer):
         user = self.context['request'].user
         record = Record(
             account_user=user,
-            detail=validated_data["detail"],
-            added=validated_data["added"],
-            duration=validated_data["duration"]
+            detail=validated_data.get("detail", None),
+            added=validated_data.get("added", None),
+            duration=validated_data.get("duration", None)
         )
         record.save()
         return record

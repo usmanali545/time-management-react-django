@@ -10,7 +10,8 @@ from django.db.models import F
 import datetime
 import json
 from django.core import serializers
-
+from django.db.models import Sum
+import decimal
 
 class WorkingHourView(APIView):
     permission_classes = [permissions.IsAuthenticated]
@@ -74,6 +75,19 @@ class OwnRecordViewSet(viewsets.ModelViewSet):
             rows_per_page = int(params.get("rowsPerPage", None))
             qs = qs[current_page * rows_per_page: (current_page + 1) * rows_per_page]
         return qs
+
+    def create(self, request):
+        queryset = self.get_queryset()
+        serializer = OwnRecordSerializer(queryset, many=True, context={'request': request})
+        user = self.request.user
+        duration = self.request.data.get("duration", None)
+        added = self.request.data.get("added", None)
+        records = Record.objects.all().filter(account_user=user).filter(added=added)
+        total_hours_on_day = records.aggregate(Sum("duration"))
+        if duration is not None:
+            if total_hours_on_day.get("duration__sum", 0) + decimal.Decimal(duration) > 24:
+                return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        return Response(status=status.HTTP_201_CREATED)
 
     def list(self, request):
         queryset = self.get_queryset()

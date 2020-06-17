@@ -450,7 +450,7 @@ function UsersTable(props) {
                     helperText={namelError && nameErrorLog}
                   />
                 </Grid>
-                <Grid xs={12} sm={4}>
+                <Grid item xs={12} sm={4}>
                   <FormControl className={classes.formControl}>
                     <InputLabel id="select-label">Role</InputLabel>
                     <Select

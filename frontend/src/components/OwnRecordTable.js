@@ -112,13 +112,7 @@ const TableToolbar = (props) => {
       from: selectedFromDate,
       to: selectedToDate,
     });
-  }, [
-    selectedFromDate,
-    selectedToDate,
-    saveOwnRecordPageInfo,
-    getOwnRecords,
-    ownRecordPageInfo,
-  ]);
+  }, [selectedFromDate, selectedToDate]);
 
   const handleDateFromChange = (date) => {
     setSelectedFromDate(formatDate(new Date(date)));
@@ -146,7 +140,7 @@ const TableToolbar = (props) => {
               variant="inline"
               format="MM/dd/yyyy"
               margin="normal"
-              id="date-picker-inline"
+              id="date-picker-inline1"
               label="From"
               value={selectedFromDate}
               onChange={handleDateFromChange}
@@ -164,7 +158,7 @@ const TableToolbar = (props) => {
               variant="inline"
               format="MM/dd/yyyy"
               margin="normal"
-              id="date-picker-inline"
+              id="date-picker-inline2"
               label="To"
               value={selectedToDate}
               onChange={handleDateToChange}
@@ -302,15 +296,7 @@ function OwnRecordTable(props) {
       rowsPerPage,
     });
     getOwnRecords({ ...ownRecordPageInfo, order, orderBy, page, rowsPerPage });
-  }, [
-    order,
-    orderBy,
-    page,
-    rowsPerPage,
-    saveOwnRecordPageInfo,
-    getOwnRecords,
-    ownRecordPageInfo,
-  ]);
+  }, [order, orderBy, page, rowsPerPage]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
