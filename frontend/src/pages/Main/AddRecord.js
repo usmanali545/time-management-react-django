@@ -26,7 +26,6 @@ const useStyles = makeStyles((theme) => ({
   button: {
     padding: theme.spacing(2),
     textAlign: "center",
-    color: theme.palette.text.secondary,
   },
   recordsTable: {
     padding: theme.spacing(2),
@@ -84,7 +83,12 @@ function AddRecord(props) {
 
   return (
     <>
-      <Button className={classes.button} onClick={handleOpen}>
+      <Button
+        className={classes.button}
+        variant="contained"
+        onClick={handleOpen}
+        color="primary"
+      >
         Add record
       </Button>
       <Modal
@@ -130,6 +134,7 @@ function AddRecord(props) {
                       KeyboardButtonProps={{
                         "aria-label": "change date",
                       }}
+                      maxDate={new Date()}
                     />
                   </MuiPickersUtilsProvider>
                 </Grid>

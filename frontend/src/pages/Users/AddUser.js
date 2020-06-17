@@ -1,5 +1,5 @@
 import "date-fns";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Grid from "@material-ui/core/Grid";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
@@ -11,11 +11,12 @@ import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
-import Alert from "@material-ui/lab/Alert";
+import Snackbar from "@material-ui/core/Snackbar";
 import { useForm } from "react-hook-form";
 import { connect } from "react-redux";
 import * as actions from "../../store/actions";
 import { validateEmail } from "../../utils/helpers/validation";
+import MuiAlert from "@material-ui/lab/Alert";
 
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -26,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
   button: {
     padding: theme.spacing(2),
     textAlign: "center",
-    color: theme.palette.text.secondary,
+    color: "white",
   },
   recordsTable: {
     padding: theme.spacing(2),
@@ -52,6 +53,11 @@ const useStyles = makeStyles((theme) => ({
     minWidth: 200,
   },
 }));
+
+function Alert(props) {
+  return <MuiAlert elevation={6} variant="filled" {...props} />;
+}
+
 function AddUser(props) {
   const { me, addUser, status } = props;
   const hasAdminAccess = me.role === "admin";
@@ -69,7 +75,16 @@ function AddUser(props) {
   const { register, handleSubmit } = useForm();
   const [error, setError] = useState(null);
   const [errorLog, setErrorLog] = useState(null);
-  const [role, setRole] = React.useState("");
+  const [namefError, setfNameError] = useState(null);
+  const [namelError, setlNameError] = useState(null);
+  const [nameErrorLog, setNameErrorLog] = useState(null);
+  const [role, setRole] = React.useState("regular");
+  const [snackOpen, setSnackOpen] = useState(false);
+  useEffect(() => {
+    if (status === "ADD_USER_FAILED") {
+      setSnackOpen(true);
+    }
+  }, [status]);
 
   const handleChange = (event) => {
     setRole(event.target.value);
@@ -87,11 +102,40 @@ function AddUser(props) {
     }
   };
 
+  const snackBarhandleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackOpen(false);
+  };
+
   return (
     <>
-      <Button className={classes.button} onClick={handleOpen}>
-        Add User
-      </Button>
+      <Grid container spacing={3}>
+        <Grid item xs={6} sm={2}>
+          <Button
+            className={classes.button}
+            variant="contained"
+            onClick={handleOpen}
+            color="primary"
+          >
+            Add User
+          </Button>
+        </Grid>
+        <Grid item xs={6} sm={9}>
+          <Snackbar
+            anchorOrigin={{ vertical: "top", horizontal: "center" }}
+            open={snackOpen}
+            autoHideDuration={3000}
+            onClose={snackBarhandleClose}
+          >
+            <Alert variant="filled" severity="error">
+              The email you entered already exists. Please choose the other
+              email.
+            </Alert>
+          </Snackbar>
+        </Grid>
+      </Grid>
       <Modal
         aria-labelledby="transition-modal-title"
         aria-describedby="transition-modal-description"
@@ -107,11 +151,6 @@ function AddUser(props) {
         <Fade in={open}>
           <div className={classes.paper}>
             <h2 id="transition-modal-title">Add User</h2>
-            {status === "ADD_USER_FAILED" ? (
-              <Alert severity="error">
-                A user with this email already exists.
-              </Alert>
-            ) : null}
             <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
               <Grid container spacing={2}>
                 <Grid item xs={12} sm={4}>
@@ -125,6 +164,16 @@ function AddUser(props) {
                     label="First Name"
                     autoFocus
                     inputRef={register}
+                    onChange={(e) => {
+                      if (/\d/.test(e.target.value)) {
+                        setfNameError(true);
+                        setNameErrorLog("Invalid input");
+                      } else {
+                        setfNameError(false);
+                      }
+                    }}
+                    error={namefError}
+                    helperText={namefError && nameErrorLog}
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -137,14 +186,24 @@ function AddUser(props) {
                     name="last_name"
                     autoComplete="lname"
                     inputRef={register}
+                    onChange={(e) => {
+                      if (/\d/.test(e.target.value)) {
+                        setlNameError(true);
+                        setNameErrorLog("Invalid input");
+                      } else {
+                        setlNameError(false);
+                      }
+                    }}
+                    error={namelError}
+                    helperText={namelError && nameErrorLog}
                   />
                 </Grid>
-                <Grid xs={12} sm={4}>
+                <Grid item xs={12} sm={4}>
                   <FormControl className={classes.formControl}>
                     <InputLabel id="select-label">Role</InputLabel>
                     <Select
                       labelId="select-label"
-                      id="demo-simple-select"
+                      id="demo-simple-select-outlined"
                       value={role}
                       required
                       name="role"
@@ -207,7 +266,9 @@ function AddUser(props) {
 const mapStateToProps = (state) => {
   const { loading } = state.record;
   const { me } = state.auth;
+  const { status } = state.admin;
   return {
+    status,
     me,
     loading,
   };

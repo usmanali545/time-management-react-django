@@ -40,6 +40,9 @@ function SignUp(props) {
   const classes = useStyles();
   const [error, setError] = useState(null);
   const [errorLog, setErrorLog] = useState(null);
+  const [namefError, setfNameError] = useState(null);
+  const [namelError, setlNameError] = useState(null);
+  const [nameErrorLog, setNameErrorLog] = useState(null);
   const { register, handleSubmit } = useForm();
   const onSubmit = (data) => {
     const { email } = data;
@@ -78,6 +81,16 @@ function SignUp(props) {
                 label="First Name"
                 autoFocus
                 inputRef={register}
+                onChange={(e) => {
+                  if (/\d/.test(e.target.value)) {
+                    setfNameError(true);
+                    setNameErrorLog("Invalid input");
+                  } else {
+                    setfNameError(false);
+                  }
+                }}
+                error={namefError}
+                helperText={namefError && nameErrorLog}
               />
             </Grid>
             <Grid item xs={12} sm={6}>
@@ -90,6 +103,16 @@ function SignUp(props) {
                 name="last_name"
                 autoComplete="lname"
                 inputRef={register}
+                onChange={(e) => {
+                  if (/\d/.test(e.target.value)) {
+                    setlNameError(true);
+                    setNameErrorLog("Invalid input");
+                  } else {
+                    setlNameError(false);
+                  }
+                }}
+                error={namelError}
+                helperText={namelError && nameErrorLog}
               />
             </Grid>
             <Grid item xs={12}>

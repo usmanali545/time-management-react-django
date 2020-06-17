@@ -12,12 +12,9 @@ import TableSortLabel from "@material-ui/core/TableSortLabel";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
-import IconButton from "@material-ui/core/IconButton";
-import Tooltip from "@material-ui/core/Tooltip";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 import Button from "@material-ui/core/Button";
-import FilterListIcon from "@material-ui/icons/FilterList";
 import Grid from "@material-ui/core/Grid";
 import DateFnsUtils from "@date-io/date-fns";
 import {
@@ -115,7 +112,13 @@ const TableToolbar = (props) => {
       from: selectedFromDate,
       to: selectedToDate,
     });
-  }, [selectedFromDate, selectedToDate]);
+  }, [
+    selectedFromDate,
+    selectedToDate,
+    saveOwnRecordPageInfo,
+    getOwnRecords,
+    ownRecordPageInfo,
+  ]);
 
   const handleDateFromChange = (date) => {
     setSelectedFromDate(formatDate(new Date(date)));
@@ -169,6 +172,7 @@ const TableToolbar = (props) => {
                 "aria-label": "change date",
               }}
               minDate={selectedFromDate}
+              maxDate={new Date()}
             />
           </MuiPickersUtilsProvider>
         </Grid>
@@ -202,6 +206,10 @@ const useStyles = makeStyles((theme) => ({
   actionButtons: {
     margin: theme.spacing(1),
   },
+  actionDeleteButtons: {
+    margin: theme.spacing(1),
+    color: "red",
+  },
   modal: {
     display: "flex",
     alignItems: "center",
@@ -220,6 +228,12 @@ const useStyles = makeStyles((theme) => ({
   form: {
     width: "100%", // Fix IE 11 issue.
     marginTop: theme.spacing(1),
+  },
+  submit: {
+    margin: theme.spacing(3, 2, 2),
+  },
+  cancel: {
+    margin: theme.spacing(3, 2, 2),
   },
   modalPaper: {
     backgroundColor: theme.palette.background.paper,
@@ -288,7 +302,15 @@ function OwnRecordTable(props) {
       rowsPerPage,
     });
     getOwnRecords({ ...ownRecordPageInfo, order, orderBy, page, rowsPerPage });
-  }, [order, orderBy, page, rowsPerPage, saveOwnRecordPageInfo, getOwnRecords]);
+  }, [
+    order,
+    orderBy,
+    page,
+    rowsPerPage,
+    saveOwnRecordPageInfo,
+    getOwnRecords,
+    ownRecordPageInfo,
+  ]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -324,6 +346,7 @@ function OwnRecordTable(props) {
   };
 
   const handleClose = () => {
+    setError(false);
     setOpen(false);
   };
 
@@ -345,9 +368,6 @@ function OwnRecordTable(props) {
     deleteOwnRecord({ id: selectedRow.id });
     handleDeleteClose();
   };
-  // const emptyRows =
-  //   rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
-
   return (
     <div className={classes.root}>
       <Paper className={classes.paper}>
@@ -372,8 +392,6 @@ function OwnRecordTable(props) {
               headCells={headCells}
             />
             <TableBody>
-              {/* {stableSort(rows, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) */}
               {ownRecords &&
                 ownRecords.data.map((row, index) => {
                   const labelId = `admin-table-checkbox-${index}`;
@@ -381,24 +399,18 @@ function OwnRecordTable(props) {
                   return (
                     <TableRow
                       className={
-                        row.duration_sum <= parseFloat(me.working_hour)
+                        row.duration_sum < parseFloat(me.working_hour)
                           ? classes.backgroundRed
                           : classes.backgroundGreen
                       }
-                      hover
                       tabIndex={-1}
                       key={index}
                     >
-                      <TableCell
-                        component="th"
-                        id={labelId}
-                        scope="row"
-                        padding="none"
-                      >
+                      <TableCell component="th" id={labelId} scope="row">
                         {row.detail}
                       </TableCell>
                       <TableCell align="left">{row.added}</TableCell>
-                      <TableCell align="right">{row.duration}</TableCell>
+                      <TableCell align="left">{row.duration}</TableCell>
                       {actions ? (
                         <TableCell align="center">
                           <Button
@@ -410,9 +422,8 @@ function OwnRecordTable(props) {
                             Edit
                           </Button>
                           <Button
-                            className={classes.actionButtons}
+                            className={classes.actionDeleteButtons}
                             variant="contained"
-                            // color="secondary"
                             onClick={() => handleDeleteOpen(row)}
                           >
                             Delete
@@ -422,11 +433,6 @@ function OwnRecordTable(props) {
                     </TableRow>
                   );
                 })}
-              {/* {emptyRows > 0 && (
-                <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )} */}
             </TableBody>
           </Table>
         </TableContainer>
@@ -488,6 +494,7 @@ function OwnRecordTable(props) {
                       KeyboardButtonProps={{
                         "aria-label": "change date",
                       }}
+                      maxDate={new Date()}
                     />
                   </MuiPickersUtilsProvider>
                 </Grid>
@@ -510,16 +517,29 @@ function OwnRecordTable(props) {
                     defaultValue={editDuration}
                   />
                 </Grid>
+                <Grid item xs={6} sm={6}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    color="default"
+                    className={classes.cancel}
+                    onClick={handleClose}
+                  >
+                    Cancel
+                  </Button>
+                </Grid>
+                <Grid item xs={6} sm={6}>
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                  >
+                    Edit Record
+                  </Button>
+                </Grid>
               </Grid>
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                color="primary"
-                className={classes.submit}
-              >
-                Edit Record
-              </Button>
             </form>
           </div>
         </Fade>
@@ -537,11 +557,22 @@ function OwnRecordTable(props) {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDeleteClose} color="primary">
-            No
+          <Button
+            onClick={handleDeleteClose}
+            variant="contained"
+            color="default"
+            className={classes.cancel}
+          >
+            Cancel
           </Button>
-          <Button onClick={handleDelete} color="primary" autoFocus>
-            Yes
+          <Button
+            onClick={handleDelete}
+            variant="contained"
+            color="secondary"
+            autoFocus
+            className={classes.submit}
+          >
+            Delete
           </Button>
         </DialogActions>
       </Dialog>

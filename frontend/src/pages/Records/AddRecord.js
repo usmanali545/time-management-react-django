@@ -1,5 +1,5 @@
 import "date-fns";
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import Grid from "@material-ui/core/Grid";
 import DateFnsUtils from "@date-io/date-fns";
 import {
@@ -27,7 +27,7 @@ const useStyles = makeStyles((theme) => ({
   button: {
     padding: theme.spacing(2),
     textAlign: "center",
-    color: theme.palette.text.secondary,
+    color: "white",
   },
   recordsTable: {
     padding: theme.spacing(2),
@@ -46,7 +46,7 @@ const useStyles = makeStyles((theme) => ({
   },
 }));
 function AddRecord(props) {
-  const { getTotalUsers, totalUsers } = props;
+  const { totalUsers } = props;
   const classes = useStyles();
   const [userId, setUserId] = useState(null);
   const [open, setOpen] = useState(false);
@@ -60,7 +60,7 @@ function AddRecord(props) {
   };
 
   const handleUserChange = (event, values) => {
-    setUserId(values.id);
+    values && setUserId(values.id);
   };
 
   const handleOpen = () => {
@@ -90,7 +90,12 @@ function AddRecord(props) {
 
   return (
     <>
-      <Button className={classes.button} onClick={handleOpen}>
+      <Button
+        className={classes.button}
+        variant="contained"
+        onClick={handleOpen}
+        color="primary"
+      >
         Add record
       </Button>
       <Modal
@@ -153,6 +158,7 @@ function AddRecord(props) {
                       KeyboardButtonProps={{
                         "aria-label": "change date",
                       }}
+                      maxDate={new Date()}
                     />
                   </MuiPickersUtilsProvider>
                 </Grid>

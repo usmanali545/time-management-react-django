@@ -58,6 +58,7 @@ export function exportSheet(data) {
     let notes = "";
     row.row.map((note) => {
       notes += `<tr><td>* ${note}</td></tr>`;
+      return true;
     });
     bodyText += `<tr class="tr">
     <td style="padding-left: 10px">${row.date}</td>
@@ -67,6 +68,7 @@ export function exportSheet(data) {
         ${notes}
       </table>
     </td>`;
+    return true;
   });
   const htmlContext = `<!DOCTYPE html>
   <html>

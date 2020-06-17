@@ -15,19 +15,22 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
     color: theme.palette.text.secondary,
   },
+  settings: {
+    marginTop: "20px",
+  },
 }));
 
 const headCells = [
   {
     id: "first_name",
     align: "left",
-    disablePadding: true,
+    disablePadding: false,
     label: "First Name",
   },
   {
     id: "last_name",
     align: "left",
-    disablePadding: true,
+    disablePadding: false,
     label: "Last Name",
   },
   { id: "email", align: "left", disablePadding: false, label: "Email" },
@@ -37,19 +40,19 @@ const headCells = [
 
 function Users(props) {
   const classes = useStyles();
-  const { getUsers, users } = props;
   return (
     <div className={classes.root}>
       <Grid container spacing={3} justify="center">
-        <Grid item xs={6} sm={3}>
-          <AddUser />
+        <Grid item xs={10}>
+          <Grid container justify="space-between">
+            <Grid item xs={6} sm={12} className={classes.settings}>
+              <AddUser />
+            </Grid>
+          </Grid>
         </Grid>
         <Grid item xs={10}>
           <UsersTable
             title="All Users"
-            // getData={getUsers}
-            // tableData={users ? users : []}
-            // totalUsers={users ? users.total_users : 0}
             headCells={headCells}
             actions={{
               exist: true,

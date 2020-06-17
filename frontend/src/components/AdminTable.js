@@ -12,12 +12,9 @@ import TableSortLabel from "@material-ui/core/TableSortLabel";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
-import IconButton from "@material-ui/core/IconButton";
-import Tooltip from "@material-ui/core/Tooltip";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 import Button from "@material-ui/core/Button";
-import FilterListIcon from "@material-ui/icons/FilterList";
 import Grid from "@material-ui/core/Grid";
 import DateFnsUtils from "@date-io/date-fns";
 import {
@@ -110,12 +107,6 @@ const TableToolbar = (props) => {
       >
         {props.title}
       </Typography>
-
-      <Tooltip title="Filter list">
-        <IconButton aria-label="filter list">
-          <FilterListIcon />
-        </IconButton>
-      </Tooltip>
     </Toolbar>
   );
 };
@@ -164,6 +155,12 @@ const useStyles = makeStyles((theme) => ({
     width: "100%", // Fix IE 11 issue.
     marginTop: theme.spacing(1),
   },
+  submit: {
+    margin: theme.spacing(3, 2, 2),
+  },
+  cancel: {
+    margin: theme.spacing(3, 2, 2),
+  },
   modalPaper: {
     backgroundColor: theme.palette.background.paper,
     border: "2px solid #000",
@@ -191,19 +188,20 @@ function AdminTable(props) {
 
   useEffect(() => {
     getTotalUsers();
-  }, []);
+  }, [getTotalUsers]);
 
   // Edit Modal
   const [open, setOpen] = useState(false);
   const [error, setError] = useState(false);
   const [dateEdited, setDateEdited] = useState(formatDate(new Date()));
-  const [userId, setUserId] = useState(null);
+  const [recordUserFullName, setRecordUserFullName] = useState("");
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [editRecordId, setEditRecordId] = useState(null);
   const [editDuration, setEditDuration] = useState(0);
   const [editDetail, setEditDetail] = useState("");
   const [editRecordUserId, setEditRecordUserId] = useState("");
   const { register, handleSubmit } = useForm();
+
   const onSubmit = (data) => {
     const { duration } = data;
 
@@ -215,7 +213,7 @@ function AdminTable(props) {
       setError(true);
     } else {
       setError(false);
-      const { detail, duration, account_user } = data;
+      const { detail, duration } = data;
       const { editRecord } = props;
       editRecord({
         id: editRecordId,
@@ -260,6 +258,7 @@ function AdminTable(props) {
   const handleEdit = (row) => {
     setOpen(true);
     setSelectedDate(new Date(row.added));
+    setRecordUserFullName(row.full_name);
     setDateEdited(formatDate(new Date(row.added)));
     setEditDetail(row.detail);
     setEditDuration(row.duration);
@@ -268,6 +267,7 @@ function AdminTable(props) {
   };
 
   const handleClose = () => {
+    setError(false);
     setOpen(false);
   };
 
@@ -285,18 +285,14 @@ function AdminTable(props) {
   };
 
   const handleDelete = () => {
-    console.log("--------", selectedRow);
     const { deleteRecord } = props;
     deleteRecord({ id: selectedRow.id });
     handleDeleteClose();
   };
 
   const handleUserChange = (event, values) => {
-    console.log("--------- user chagne", values);
-    setEditRecordUserId(values.id);
+    values && setEditRecordUserId(values.id);
   };
-  // const emptyRows =
-  //   rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
 
   return (
     <div className={classes.root}>
@@ -317,27 +313,20 @@ function AdminTable(props) {
               headCells={headCells}
             />
             <TableBody>
-              {/* {stableSort(rows, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) */}
               {records &&
                 records.data.map((row, index) => {
                   const labelId = `admin-table-checkbox-${index}`;
 
                   return (
-                    <TableRow hover tabIndex={-1} key={index}>
-                      <TableCell
-                        component="th"
-                        id={labelId}
-                        scope="row"
-                        padding="none"
-                      >
+                    <TableRow tabIndex={-1} key={index}>
+                      <TableCell component="th" id={labelId} scope="row">
                         {row.full_name}
                       </TableCell>
-                      <TableCell id={labelId} scope="row" padding="none">
+                      <TableCell id={labelId} scope="row">
                         {row.detail}
                       </TableCell>
                       <TableCell align="left">{row.added}</TableCell>
-                      <TableCell align="right">{row.duration}</TableCell>
+                      <TableCell align="left">{row.duration}</TableCell>
                       {actions ? (
                         <TableCell align="center">
                           <Button
@@ -361,11 +350,6 @@ function AdminTable(props) {
                     </TableRow>
                   );
                 })}
-              {/* {emptyRows > 0 && (
-                <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )} */}
             </TableBody>
           </Table>
         </TableContainer>
@@ -412,8 +396,10 @@ function AdminTable(props) {
                     label="Assign User"
                     margin="normal"
                     variant="outlined"
+                    required
                   />
                 )}
+                defaultValue={{ first_name: recordUserFullName, last_name: "" }}
               />
               <TextField
                 variant="outlined"
@@ -443,6 +429,7 @@ function AdminTable(props) {
                       KeyboardButtonProps={{
                         "aria-label": "change date",
                       }}
+                      maxDate={new Date()}
                     />
                   </MuiPickersUtilsProvider>
                 </Grid>
@@ -465,16 +452,29 @@ function AdminTable(props) {
                     defaultValue={editDuration}
                   />
                 </Grid>
+                <Grid item xs={6} sm={6}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    color="default"
+                    className={classes.cancel}
+                    onClick={handleClose}
+                  >
+                    Cancel
+                  </Button>
+                </Grid>
+                <Grid item xs={6} sm={6}>
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                  >
+                    Edit Record
+                  </Button>
+                </Grid>
               </Grid>
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                color="primary"
-                className={classes.submit}
-              >
-                Edit Record
-              </Button>
             </form>
           </div>
         </Fade>
@@ -492,11 +492,22 @@ function AdminTable(props) {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDeleteClose} color="primary">
-            No
+          <Button
+            onClick={handleDeleteClose}
+            variant="contained"
+            color="default"
+            className={classes.cancel}
+          >
+            Cancel
           </Button>
-          <Button onClick={handleDelete} color="primary" autoFocus>
-            Yes
+          <Button
+            onClick={handleDelete}
+            variant="contained"
+            color="secondary"
+            autoFocus
+            className={classes.submit}
+          >
+            Delete
           </Button>
         </DialogActions>
       </Dialog>

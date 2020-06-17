@@ -8,7 +8,6 @@ import { formatDate } from "../../utils/helpers/helper";
 import {
   SAVE_RECORD_PAGE_INFO,
   SAVE_OWN_RECORD_PAGE_INFO,
-  SET_WORKING_HOUR,
 } from "../actionTypes";
 
 const initialState = {

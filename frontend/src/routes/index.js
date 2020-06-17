@@ -1,5 +1,5 @@
 import React from "react";
-import { Route, Switch } from "react-router-dom";
+import { Route, Switch, Redirect } from "react-router-dom";
 import { connect } from "react-redux";
 
 import Header from "../components/header";
@@ -23,11 +23,12 @@ const Routes = (props) => {
       <Header />
       <Switch>
         <Route exact path="/" component={Home} />
-        <Route exact path="/signup" component={Signup} />
-        <Route exact path="/signin" component={Signin} />
-        <Route exact path="/main" component={Main} />
+        {!me && <Route exact path="/signup" component={Signup} />}
+        {!me && <Route exact path="/signin" component={Signin} />}
+        {me && <Route exact path="/main" component={Main} />}
         {hasManagerAccess && <Route exact path="/users" component={Users} />}
         {hasAdminAccess && <Route exact path="/records" component={Records} />}
+        <Route path="*" render={() => <Redirect to="/" />} />
       </Switch>
     </div>
   );

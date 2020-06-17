@@ -1,11 +1,5 @@
 import "date-fns";
 import React, { useState } from "react";
-import Grid from "@material-ui/core/Grid";
-import DateFnsUtils from "@date-io/date-fns";
-import {
-  MuiPickersUtilsProvider,
-  KeyboardDatePicker,
-} from "@material-ui/pickers";
 import { makeStyles } from "@material-ui/core/styles";
 import TextField from "@material-ui/core/TextField";
 import Button from "@material-ui/core/Button";
@@ -15,7 +9,6 @@ import Fade from "@material-ui/core/Fade";
 import { useForm } from "react-hook-form";
 import { connect } from "react-redux";
 import * as actions from "../../store/actions";
-import { formatDate } from "../../utils/helpers/helper";
 
 const useStyles = makeStyles((theme) => ({
   modal: {
@@ -26,7 +19,7 @@ const useStyles = makeStyles((theme) => ({
   button: {
     padding: theme.spacing(2),
     textAlign: "center",
-    color: theme.palette.text.secondary,
+    color: "white",
   },
   recordsTable: {
     padding: theme.spacing(2),
@@ -77,7 +70,12 @@ function AddRecord(props) {
 
   return (
     <>
-      <Button className={classes.button} onClick={handleOpen}>
+      <Button
+        className={classes.button}
+        color="primary"
+        variant="contained"
+        onClick={handleOpen}
+      >
         Set Working Hour
       </Button>
       <Modal

@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React from "react";
 import { makeStyles } from "@material-ui/core/styles";
 import Grid from "@material-ui/core/Grid";
 import { connect } from "react-redux";
@@ -24,17 +24,20 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
     color: "white",
   },
+  header: {
+    paddingRight: "0px !important",
+  },
 }));
 
 const headCells = [
   {
     id: "detail",
     align: "left",
-    disablePadding: true,
+    disablePadding: false,
     label: "Detail",
   },
   { id: "added", align: "left", disablePadding: false, label: "Date Added" },
-  { id: "duration", align: "right", disablePadding: false, label: "Duration" },
+  { id: "duration", align: "left", disablePadding: false, label: "Duration" },
   { id: "action", align: "center", disablePadding: false, label: "Action" },
 ];
 
@@ -50,22 +53,25 @@ function Main(props) {
   return (
     <div className={classes.root}>
       <Grid container spacing={3} justify="center">
-        <Grid className={classes.settings} item xs={6} sm={1}></Grid>
-        <Grid className={classes.settings} item xs={6} sm={8}>
-          <AddRecord className={classes.AddRecord} />
-        </Grid>
-        <Grid className={classes.settings} item xs={6} sm={2}>
-          <SetWorkingHour />
-        </Grid>
-        <Grid className={classes.settings} item xs={6} sm={1}>
-          <Button
-            variant="contained"
-            className={classes.button}
-            color="primary"
-            onClick={handleExport}
-          >
-            Export
-          </Button>
+        <Grid item justify="center" xs={10} className={classes.header}>
+          <Grid container justify="space-between">
+            <Grid className={classes.settings} item xs={6} sm={8}>
+              <AddRecord className={classes.AddRecord} />
+            </Grid>
+            <Grid className={classes.settings} item xs={6} sm={2}>
+              <SetWorkingHour />
+            </Grid>
+            <Grid className={classes.settings} item xs={6} sm={1}>
+              <Button
+                variant="contained"
+                className={classes.button}
+                color="primary"
+                onClick={handleExport}
+              >
+                Export
+              </Button>
+            </Grid>
+          </Grid>
         </Grid>
         <Grid item xs={10}>
           <OwnRecordTable

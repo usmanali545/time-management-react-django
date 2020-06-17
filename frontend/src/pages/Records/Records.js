@@ -15,6 +15,9 @@ const useStyles = makeStyles((theme) => ({
     textAlign: "center",
     color: theme.palette.text.secondary,
   },
+  settings: {
+    marginTop: "20px",
+  },
 }));
 
 const headCells = [
@@ -22,11 +25,11 @@ const headCells = [
   {
     id: "detail",
     align: "left",
-    disablePadding: true,
+    disablePadding: false,
     label: "Detail",
   },
   { id: "added", align: "left", disablePadding: false, label: "Date Added" },
-  { id: "duration", align: "right", disablePadding: false, label: "Duration" },
+  { id: "duration", align: "left", disablePadding: false, label: "Duration" },
   { id: "action", align: "center", disablePadding: false, label: "Action" },
 ];
 
@@ -35,8 +38,12 @@ function Record(props) {
   return (
     <div className={classes.root}>
       <Grid container spacing={3} justify="center">
-        <Grid item xs={6} sm={3}>
-          <AddRecord />
+        <Grid item xs={10}>
+          <Grid container justify="space-between">
+            <Grid item xs={6} sm={3} className={classes.settings}>
+              <AddRecord />
+            </Grid>
+          </Grid>
         </Grid>
         <Grid item xs={10}>
           <AdminTable

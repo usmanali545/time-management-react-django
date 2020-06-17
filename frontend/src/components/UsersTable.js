@@ -12,18 +12,10 @@ import TableSortLabel from "@material-ui/core/TableSortLabel";
 import Toolbar from "@material-ui/core/Toolbar";
 import Typography from "@material-ui/core/Typography";
 import Paper from "@material-ui/core/Paper";
-import IconButton from "@material-ui/core/IconButton";
-import Tooltip from "@material-ui/core/Tooltip";
 import FormControlLabel from "@material-ui/core/FormControlLabel";
 import Switch from "@material-ui/core/Switch";
 import Button from "@material-ui/core/Button";
-import FilterListIcon from "@material-ui/icons/FilterList";
 import Grid from "@material-ui/core/Grid";
-import DateFnsUtils from "@date-io/date-fns";
-import {
-  MuiPickersUtilsProvider,
-  KeyboardDatePicker,
-} from "@material-ui/pickers";
 import TextField from "@material-ui/core/TextField";
 import Modal from "@material-ui/core/Modal";
 import Backdrop from "@material-ui/core/Backdrop";
@@ -36,12 +28,12 @@ import DialogTitle from "@material-ui/core/DialogTitle";
 import { useForm } from "react-hook-form";
 import { connect } from "react-redux";
 import * as actions from "../store/actions";
-import { formatDate } from "../utils/helpers/helper";
 import InputLabel from "@material-ui/core/InputLabel";
 import MenuItem from "@material-ui/core/MenuItem";
 import FormControl from "@material-ui/core/FormControl";
 import Select from "@material-ui/core/Select";
 import Alert from "@material-ui/lab/Alert";
+import Snackbar from "@material-ui/core/Snackbar";
 import { validateEmail } from "../utils/helpers/validation";
 
 function UsersTableHead(props) {
@@ -115,12 +107,6 @@ const TableToolbar = (props) => {
       >
         {props.title}
       </Typography>
-
-      <Tooltip title="Filter list">
-        <IconButton aria-label="filter list">
-          <FilterListIcon />
-        </IconButton>
-      </Tooltip>
     </Toolbar>
   );
 };
@@ -170,7 +156,10 @@ const useStyles = makeStyles((theme) => ({
     marginTop: theme.spacing(1),
   },
   submit: {
-    margin: theme.spacing(3, 0, 2),
+    margin: theme.spacing(3, 2, 2),
+  },
+  cancel: {
+    margin: theme.spacing(3, 2, 2),
   },
   formControl: {
     margin: theme.spacing(1),
@@ -194,6 +183,7 @@ function UsersTable(props) {
     actions,
     saveUsersPageInfo,
     editUser,
+    status,
   } = props;
   const classes = useStyles();
   const [order, setOrder] = useState("desc");
@@ -207,11 +197,15 @@ function UsersTable(props) {
   const [open, setOpen] = useState(false);
   const [error, setError] = useState(false);
   const [errorLog, setErrorLog] = useState(null);
+  const [namefError, setfNameError] = useState(null);
+  const [namelError, setlNameError] = useState(null);
+  const [nameErrorLog, setNameErrorLog] = useState(null);
   const [role, setRole] = React.useState("");
   const [editUserId, setEditUserId] = useState(null);
   const [editFirstName, setEditFirstName] = useState("");
   const [editLastName, setEditLastName] = useState("");
   const [editEmail, setEditEmail] = useState("");
+  const [snackOpen, setSnackOpen] = useState(false);
   const { register, handleSubmit } = useForm();
   const onSubmit = (data) => {
     const { email } = data;
@@ -238,10 +232,23 @@ function UsersTable(props) {
     }
   };
 
+  const snackBarhandleClose = (event, reason) => {
+    if (reason === "clickaway") {
+      return;
+    }
+    setSnackOpen(false);
+  };
+
   useEffect(() => {
     saveUsersPageInfo({ order, orderBy, page, rowsPerPage });
     getUsers({ order, orderBy, page, rowsPerPage });
   }, [order, orderBy, page, rowsPerPage, saveUsersPageInfo, getUsers]);
+
+  useEffect(() => {
+    if (status === "EDIT_USER_FAILED") {
+      setSnackOpen(true);
+    }
+  }, [status]);
 
   const handleRequestSort = (event, property) => {
     const isAsc = orderBy === property && order === "asc";
@@ -276,6 +283,7 @@ function UsersTable(props) {
   };
 
   const handleClose = () => {
+    setError(false);
     setOpen(false);
   };
 
@@ -297,11 +305,18 @@ function UsersTable(props) {
     deleteUser({ id: selectedRow.id });
     handleDeleteClose();
   };
-  // const emptyRows =
-  //   rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
-
   return (
     <div className={classes.root}>
+      <Snackbar
+        anchorOrigin={{ vertical: "top", horizontal: "center" }}
+        open={snackOpen}
+        autoHideDuration={3000}
+        onClose={snackBarhandleClose}
+      >
+        <Alert variant="filled" severity="error">
+          The email you changed already exists. Please choose the another email.
+        </Alert>
+      </Snackbar>
       <Paper className={classes.paper}>
         <TableToolbar title={props.title} />
         <TableContainer>
@@ -319,20 +334,13 @@ function UsersTable(props) {
               headCells={headCells}
             />
             <TableBody>
-              {/* {stableSort(rows, getComparator(order, orderBy))
-                .slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage) */}
               {users &&
                 users.data.map((row, index) => {
                   const labelId = `admin-table-checkbox-${index}`;
 
                   return (
-                    <TableRow hover tabIndex={-1} key={index}>
-                      <TableCell
-                        component="th"
-                        id={labelId}
-                        scope="row"
-                        padding="none"
-                      >
+                    <TableRow tabIndex={-1} key={index}>
+                      <TableCell component="th" id={labelId} scope="row">
                         {row.first_name}
                       </TableCell>
                       <TableCell align="left">{row.last_name}</TableCell>
@@ -361,11 +369,6 @@ function UsersTable(props) {
                     </TableRow>
                   );
                 })}
-              {/* {emptyRows > 0 && (
-                <TableRow style={{ height: (dense ? 33 : 53) * emptyRows }}>
-                  <TableCell colSpan={6} />
-                </TableRow>
-              )} */}
             </TableBody>
           </Table>
         </TableContainer>
@@ -405,12 +408,23 @@ function UsersTable(props) {
                     autoComplete="fname"
                     name="first_name"
                     variant="outlined"
+                    required
                     fullWidth
                     id="firstName"
                     label="First Name"
                     autoFocus
                     inputRef={register}
                     defaultValue={editFirstName}
+                    onChange={(e) => {
+                      if (/\d/.test(e.target.value)) {
+                        setfNameError(true);
+                        setNameErrorLog("Invalid input");
+                      } else {
+                        setfNameError(false);
+                      }
+                    }}
+                    error={namefError}
+                    helperText={namefError && nameErrorLog}
                   />
                 </Grid>
                 <Grid item xs={12} sm={4}>
@@ -418,11 +432,22 @@ function UsersTable(props) {
                     variant="outlined"
                     fullWidth
                     id="lastName"
+                    required
                     label="Last Name"
                     name="last_name"
                     autoComplete="lname"
                     inputRef={register}
                     defaultValue={editLastName}
+                    onChange={(e) => {
+                      if (/\d/.test(e.target.value)) {
+                        setlNameError(true);
+                        setNameErrorLog("Invalid input");
+                      } else {
+                        setlNameError(false);
+                      }
+                    }}
+                    error={namelError}
+                    helperText={namelError && nameErrorLog}
                   />
                 </Grid>
                 <Grid xs={12} sm={4}>
@@ -450,6 +475,7 @@ function UsersTable(props) {
                     variant="outlined"
                     fullWidth
                     id="email"
+                    required
                     label="Email Address"
                     name="email"
                     autoComplete="email"
@@ -470,16 +496,29 @@ function UsersTable(props) {
                     inputRef={register}
                   />
                 </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Button
+                    fullWidth
+                    variant="contained"
+                    color="default"
+                    className={classes.cancel}
+                    onClick={handleClose}
+                  >
+                    Cancel
+                  </Button>
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Button
+                    type="submit"
+                    fullWidth
+                    variant="contained"
+                    color="primary"
+                    className={classes.submit}
+                  >
+                    Edit User
+                  </Button>
+                </Grid>
               </Grid>
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
-                color="primary"
-                className={classes.submit}
-              >
-                Edit User
-              </Button>
             </form>
           </div>
         </Fade>
@@ -490,18 +529,31 @@ function UsersTable(props) {
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
-        <DialogTitle id="alert-dialog-title">{"Delete User"}</DialogTitle>
+        <DialogTitle id="alert-dialog-title">
+          Delete User ({selectedRow.email})
+        </DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
             Are you sure to delete this user?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button onClick={handleDeleteClose} color="primary">
-            No
+          <Button
+            onClick={handleDeleteClose}
+            variant="contained"
+            color="default"
+            className={classes.cancel}
+          >
+            Cancel
           </Button>
-          <Button onClick={handleDelete} color="primary" autoFocus>
-            Yes
+          <Button
+            onClick={handleDelete}
+            variant="contained"
+            color="secondary"
+            autoFocus
+            className={classes.submit}
+          >
+            Delete
           </Button>
         </DialogActions>
       </Dialog>
@@ -510,11 +562,12 @@ function UsersTable(props) {
 }
 
 const mapStateToProps = (state) => {
-  const { users } = state.admin;
+  const { users, status } = state.admin;
   const { me } = state.auth;
   return {
     me,
     users,
+    status,
   };
 };
 
