@@ -54,10 +54,6 @@ function AddRecord(props) {
   const [dateAdded, setDateAdded] = useState(formatDate(new Date()));
   const [selectedDate, setSelectedDate] = useState(new Date());
 
-  useEffect(() => {
-    getTotalUsers();
-  }, []);
-
   const handleDateChange = (date) => {
     setSelectedDate(date);
     setDateAdded(formatDate(date));
@@ -87,7 +83,7 @@ function AddRecord(props) {
     } else {
       setError(false);
       const { addRecord } = props;
-      addRecord({ account_user_id: userId, ...data, added: dateAdded });
+      addRecord({ account_user: userId, ...data, added: dateAdded });
       handleClose();
     }
   };

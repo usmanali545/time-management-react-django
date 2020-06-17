@@ -139,7 +139,7 @@ export function* editOwnRecordSaga(action) {
     yield put({ type: requestSuccess("EDIT_OWN_RECORD") });
     yield put({
       type: GET_OWN_RECORDS,
-      payload: state.record.pageInfo,
+      payload: state.record.ownRecordPageInfo,
     });
     yield put(push("/main"));
   } catch (error) {

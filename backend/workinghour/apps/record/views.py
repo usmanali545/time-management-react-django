@@ -50,18 +50,62 @@ class OwnRecordViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = Record.objects.all().filter(account_user=self.request.user)
-        total_records = len(qs)
         params = self.request.query_params
 
         order = params.get("order", None)
         order_by = params.get("orderBy", None)
-        added_from = params.get("from", None).split("-")
-        added_to = params.get("to", None).split("-")
+        added_from = params.get("from", None)
+        added_to = params.get("to", None)
         
         if (added_from is not None) and (added_to is not None):
+            added_from = params.get("from", None).split("-")
+            added_to = params.get("to", None).split("-")
+            qs = qs.exclude(added__gt=datetime.date(int(added_to[0]), int(added_to[1]), int(added_to[2]))).exclude(
+                added__lt=datetime.date(int(added_from[0]), int(added_from[1]), int(added_from[2])))
+
+        if order is not None:
+            if order == 'asc':
+                qs = qs.order_by(F(order_by).asc())
+            else:
+                qs = qs.order_by(F(order_by).desc())
+
+        if params.get("page", None) is not None:
+            current_page = int(params.get("page", None))
+            rows_per_page = int(params.get("rowsPerPage", None))
+            qs = qs[current_page * rows_per_page: (current_page + 1) * rows_per_page]
+        return qs
+
+    def list(self, request):
+        queryset = self.get_queryset()
+        params = self.request.query_params
+        total_records = len(Record.objects.all())
+
+        added_from = params.get("from", None)
+        added_to = params.get("to", None)
+
+        if (added_from is not None) and (added_to is not None):
+            added_from = params.get("from", None).split("-")
+            added_to = params.get("to", None).split("-")
+            qs = Record.objects.all().filter(account_user=self.request.user)
             qs = qs.exclude(added__gt=datetime.date(int(added_to[0]), int(added_to[1]), int(added_to[2]))).exclude(
                 added__lt=datetime.date(int(added_from[0]), int(added_from[1]), int(added_from[2])))
             total_records = len(qs)
+
+        serializer = OwnRecordSerializer(queryset, many=True, context={'request': request})
+        return Response(data={"total_records": total_records, "data": serializer.data})
+
+
+
+class RecordViewSet(viewsets.ModelViewSet):
+    serializer_class = RecordSerializer
+    permission_classes = [IsAdmin]
+
+    def get_queryset(self):
+        qs = Record.objects.all().exclude(account_user=self.request.user)
+        params = self.request.query_params
+
+        order = params.get("order", None)
+        order_by = params.get("orderBy", None)
 
         if order is not None:
             if order == 'asc':
@@ -74,39 +118,9 @@ class OwnRecordViewSet(viewsets.ModelViewSet):
             rows_per_page = int(params.get("rowsPerPage", None))
             qs = qs[current_page * rows_per_page: (current_page + 1) * rows_per_page]
 
-        return qs, total_records
-
-    def list(self, request):
-        queryset, total_records = self.get_queryset()
-        serializer = OwnRecordSerializer(queryset, many=True, context={'request': request})
-        return Response(data={"total_records": total_records, "data": serializer.data})
-
-
-class RecordViewSet(viewsets.ModelViewSet):
-    serializer_class = RecordSerializer
-    permission_classes = [IsAdmin]
-
-    def get_queryset(self):
-        qs = Record.objects.all()
-        params = self.request.query_params
-
-        order = params.get("order", None)
-        order_by = params.get("orderBy", None)
-
-        if order is not None:
-            if order == 'asc':
-                qs = Record.objects.order_by(F(order_by).asc())
-            else:
-                qs = Record.objects.order_by(F(order_by).desc())
-
-        if params.get("page", None) is not None:
-            current_page = int(params.get("page", None))
-            rows_per_page = int(params.get("rowsPerPage", None))
-            qs = qs[current_page * rows_per_page: (current_page + 1) * rows_per_page]
-
         return qs
 
     def list(self, request):
         queryset = self.get_queryset()
         serializer = RecordSerializer(queryset, many=True)
-        return Response(data={"total_records": len(Record.objects.all()), "data": serializer.data})
+        return Response(data={"total_records": len(Record.objects.all().exclude(account_user=self.request.user)), "data": serializer.data})

@@ -33,6 +33,7 @@ import DialogActions from "@material-ui/core/DialogActions";
 import DialogContent from "@material-ui/core/DialogContent";
 import DialogContentText from "@material-ui/core/DialogContentText";
 import DialogTitle from "@material-ui/core/DialogTitle";
+import Autocomplete from "@material-ui/lab/Autocomplete";
 import { useForm } from "react-hook-form";
 import { connect } from "react-redux";
 import * as actions from "../store/actions";
@@ -178,12 +179,25 @@ function AdminTable(props) {
   const [page, setPage] = useState(0);
   const [dense, setDense] = useState(false);
   const [rowsPerPage, setRowsPerPage] = useState(5);
-  const { headCells, actions, savePageInfo, getRecords, records } = props;
+  const {
+    headCells,
+    actions,
+    savePageInfo,
+    getRecords,
+    records,
+    totalUsers,
+    getTotalUsers,
+  } = props;
+
+  useEffect(() => {
+    getTotalUsers();
+  }, []);
 
   // Edit Modal
   const [open, setOpen] = useState(false);
   const [error, setError] = useState(false);
   const [dateEdited, setDateEdited] = useState(formatDate(new Date()));
+  const [userId, setUserId] = useState(null);
   const [selectedDate, setSelectedDate] = useState(new Date());
   const [editRecordId, setEditRecordId] = useState(null);
   const [editDuration, setEditDuration] = useState(0);
@@ -205,7 +219,7 @@ function AdminTable(props) {
       const { editRecord } = props;
       editRecord({
         id: editRecordId,
-        account_user_id: editRecordUserId,
+        account_user: editRecordUserId,
         detail,
         duration,
         added: dateEdited,
@@ -275,6 +289,11 @@ function AdminTable(props) {
     const { deleteRecord } = props;
     deleteRecord({ id: selectedRow.id });
     handleDeleteClose();
+  };
+
+  const handleUserChange = (event, values) => {
+    console.log("--------- user chagne", values);
+    setEditRecordUserId(values.id);
   };
   // const emptyRows =
   //   rowsPerPage - Math.min(rowsPerPage, rows.length - page * rowsPerPage);
@@ -380,6 +399,22 @@ function AdminTable(props) {
           <div className={classes.modalPaper}>
             <h2 id="transition-modal-title">Edit Details</h2>
             <form className={classes.form} onSubmit={handleSubmit(onSubmit)}>
+              <Autocomplete
+                id="record-user"
+                options={totalUsers && totalUsers.data}
+                getOptionLabel={(option) =>
+                  `${option.first_name} ${option.last_name}`
+                }
+                onChange={handleUserChange}
+                renderInput={(params) => (
+                  <TextField
+                    {...params}
+                    label="Assign User"
+                    margin="normal"
+                    variant="outlined"
+                  />
+                )}
+              />
               <TextField
                 variant="outlined"
                 margin="normal"
@@ -471,9 +506,11 @@ function AdminTable(props) {
 
 const mapStateToProps = (state) => {
   const { loading, records } = state.record;
+  const { totalUsers } = state.admin;
   return {
     records,
     loading,
+    totalUsers,
   };
 };
 
@@ -483,6 +520,7 @@ const mapDispatchToProps = (dispatch) => {
     savePageInfo: (params) => dispatch(actions.saveRecordPageInfo(params)),
     editRecord: (params) => dispatch(actions.editRecord(params)),
     deleteRecord: (params) => dispatch(actions.deleteRecord(params)),
+    getTotalUsers: () => dispatch(actions.getTotalUsers()),
   };
 };
 

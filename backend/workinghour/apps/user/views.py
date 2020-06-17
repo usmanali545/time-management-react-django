@@ -63,6 +63,31 @@ class UsersViewSet(viewsets.ModelViewSet):
 
     def get_queryset(self):
         qs = AccountUser.objects.all().exclude(id=self.request.user.id)
+        params = self.request.query_params
+
+        order = params.get("order", None)
+        order_by = params.get("orderBy", None)
+
+        if order is not None:
+            if order == 'asc':
+                qs = AccountUser.objects.order_by(F(order_by).asc())
+            else:
+                qs = AccountUser.objects.order_by(F(order_by).desc())
+
+        if params.get("page", None) is not None:
+            if self.request.user.role == "manager":
+                qs = qs.exclude(role="admin")
+            current_page = int(params.get("page", None))
+            rows_per_page = int(params.get("rowsPerPage", None))
+            qs = qs[current_page * rows_per_page: (current_page + 1) * rows_per_page]
+            return qs
+
+        return qs
+
+    def list(self, request):
+        queryset = self.get_queryset()
+
+        qs = AccountUser.objects.all().exclude(id=self.request.user.id)
         total_users = len(qs)
         params = self.request.query_params
 
@@ -79,14 +104,6 @@ class UsersViewSet(viewsets.ModelViewSet):
             if self.request.user.role == "manager":
                 qs = qs.exclude(role="admin")
             total_users = len(qs)
-            current_page = int(params.get("page", None))
-            rows_per_page = int(params.get("rowsPerPage", None))
-            qs = qs[current_page * rows_per_page: (current_page + 1) * rows_per_page]
-            return qs, total_users
 
-        return qs, total_users
-
-    def list(self, request):
-        queryset, total_users = self.get_queryset()
         serializer = UserSerializer(queryset, many=True)
         return Response(data={"total_users": total_users, "data": serializer.data})
