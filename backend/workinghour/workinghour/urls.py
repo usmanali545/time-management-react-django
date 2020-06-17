@@ -30,5 +30,6 @@ urlpatterns = [
     path('signin/', user_views.LoginView.as_view()),
     path('signup/', user_views.RegisterView.as_view()),
     path('workinghour/', record_views.WorkingHourView.as_view()),
+    path('export/', record_views.ExportView.as_view()),
     re_path(r'^', include(router.urls))
 ]
