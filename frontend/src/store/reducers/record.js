@@ -50,7 +50,7 @@ export const recordReducer = function (state = initialState, action) {
     case requestFailed("ADD_RECORD"):
       return {
         ...state,
-        loading: true,
+        loading: false,
         status: requestFailed("ADD_RECORD"),
         error: action.payload,
       };
@@ -69,7 +69,7 @@ export const recordReducer = function (state = initialState, action) {
     case requestFailed("EDIT_RECORD"):
       return {
         ...state,
-        loading: true,
+        loading: false,
         status: requestFailed("EDIT_RECORD"),
         error: action.payload,
       };
@@ -89,7 +89,7 @@ export const recordReducer = function (state = initialState, action) {
     case requestFailed("GET_RECORDS"):
       return {
         ...state,
-        loading: true,
+        loading: false,
         status: requestFailed("GET_RECORDS"),
         error: action.payload,
       };
@@ -113,7 +113,7 @@ export const recordReducer = function (state = initialState, action) {
     case requestFailed("ADD_OWN_RECORD"):
       return {
         ...state,
-        loading: true,
+        loading: false,
         status: requestFailed("ADD_OWN_RECORD"),
         error: action.payload,
       };
@@ -132,7 +132,7 @@ export const recordReducer = function (state = initialState, action) {
     case requestFailed("EDIT_OWN_RECORD"):
       return {
         ...state,
-        loading: true,
+        loading: false,
         status: requestFailed("EDIT_OWN_RECORD"),
         error: action.payload,
       };
@@ -152,7 +152,7 @@ export const recordReducer = function (state = initialState, action) {
     case requestFailed("GET_OWN_RECORDS"):
       return {
         ...state,
-        loading: true,
+        loading: false,
         status: requestFailed("GET_OWN_RECORDS"),
         error: action.payload,
       };
@@ -171,7 +171,7 @@ export const recordReducer = function (state = initialState, action) {
     case requestFailed("SET_WORKING_HOUR"):
       return {
         ...state,
-        loading: true,
+        loading: false,
         status: requestFailed("SET_WORKING_HOUR"),
         error: action.payload,
       };
@@ -190,7 +190,7 @@ export const recordReducer = function (state = initialState, action) {
     case requestFailed("EXPORT_OWN_RECORDS"):
       return {
         ...state,
-        loading: true,
+        loading: false,
         status: requestFailed("EXPORT_OWN_RECORDS"),
         error: action.payload,
       };

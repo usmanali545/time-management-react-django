@@ -36,7 +36,7 @@ export const adminReducer = function (state = initialState, action) {
     case requestFailed("ADD_USER"):
       return {
         ...state,
-        loading: true,
+        loading: false,
         status: requestFailed("ADD_USER"),
         error: action.payload,
       };
@@ -55,7 +55,7 @@ export const adminReducer = function (state = initialState, action) {
     case requestFailed("EDIT_USER"):
       return {
         ...state,
-        loading: true,
+        loading: false,
         status: requestFailed("EDIT_USER"),
         error: action.payload,
       };
@@ -75,7 +75,7 @@ export const adminReducer = function (state = initialState, action) {
     case requestFailed("GET_USERS"):
       return {
         ...state,
-        loading: true,
+        loading: false,
         status: requestFailed("GET_USERS"),
         error: action.payload,
       };
@@ -95,7 +95,7 @@ export const adminReducer = function (state = initialState, action) {
     case requestFailed("GET_TOTAL_USERS"):
       return {
         ...state,
-        loading: true,
+        loading: false,
         status: requestFailed("GET_TOTAL_USERS"),
         error: action.payload,
       };

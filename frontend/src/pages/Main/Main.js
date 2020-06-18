@@ -53,22 +53,25 @@ function Main(props) {
   return (
     <div className={classes.root}>
       <Grid container spacing={3} justify="center">
-        <Grid className={classes.settings} item xs={6} sm={1}></Grid>
-        <Grid className={classes.settings} item xs={6} sm={8}>
-          <AddRecord className={classes.AddRecord} />
-        </Grid>
-        <Grid className={classes.settings} item xs={6} sm={2}>
-          <SetWorkingHour />
-        </Grid>
-        <Grid className={classes.settings} item xs={6} sm={1}>
-          <Button
-            variant="contained"
-            className={classes.button}
-            color="primary"
-            onClick={handleExport}
-          >
-            Export
-          </Button>
+        <Grid item justify="center" xs={10} className={classes.header}>
+          <Grid container justify="space-between">
+            <Grid className={classes.settings} item xs={6} sm={8}>
+              <AddRecord className={classes.AddRecord} />
+            </Grid>
+            <Grid className={classes.settings} item xs={6} sm={2}>
+              <SetWorkingHour />
+            </Grid>
+            <Grid className={classes.settings} item xs={6} sm={1}>
+              <Button
+                variant="contained"
+                className={classes.button}
+                color="primary"
+                onClick={handleExport}
+              >
+                Export
+              </Button>
+            </Grid>
+          </Grid>
         </Grid>
         <Grid item xs={10}>
           <OwnRecordTable

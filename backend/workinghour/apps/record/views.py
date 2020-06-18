@@ -76,6 +76,31 @@ class OwnRecordViewSet(viewsets.ModelViewSet):
             qs = qs[current_page * rows_per_page: (current_page + 1) * rows_per_page]
         return qs
 
+    def perform_create(self, serializer):
+        instance = serializer.save(owner=self.request.user)
+        return instance
+
+    def create(self, request):
+        user = self.request.user
+        duration = self.request.data.get("duration", None)
+        if decimal.Decimal(duration) <= 0:
+            return Response(status=status.HTTP_406_NOT_ACCEPTABLE)
+        added = self.request.data.get("added", None)
+        records = Record.objects.all().filter(account_user=user).filter(added=added)
+        total_hours_on_day = records.aggregate(Sum("duration"))
+        duration_sum = total_hours_on_day.get("duration__sum", 0)
+        if duration_sum is not None:
+            if duration_sum + decimal.Decimal(duration) > 24:
+                return Response(status=status.HTTP_406_NOT_ACCEPTABLE, data={"duration_sum": (duration_sum + decimal.Decimal(duration))})
+
+        write_serializer = OwnRecordSerializer(data=request.data, context={'request': request})
+        write_serializer.is_valid(raise_exception=True)
+        instance = self.perform_create(write_serializer)
+
+        read_serializer = OwnRecordSerializer(instance, context={'request': request})
+        
+        return Response(read_serializer.data)
+
     def list(self, request):
         queryset = self.get_queryset()
         params = self.request.query_params
