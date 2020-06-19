@@ -18,8 +18,9 @@ import {
   GET_TOTAL_USERS,
   SET_WORKING_HOUR,
   EXPORT_OWN_RECORDS,
+  EDIT_PROFILE,
 } from "../actionTypes";
-import { signupSaga, signinSaga, signoutSaga } from "./auth";
+import { signupSaga, signinSaga, signoutSaga, editProfileSaga } from "./auth";
 import {
   addOwnRecordSaga,
   editOwnRecordSaga,
@@ -61,5 +62,6 @@ export default function* rootSaga() {
     takeEvery(GET_TOTAL_USERS, getTotalUsersSaga),
     takeEvery(SET_WORKING_HOUR, setWorkingHourSaga),
     takeEvery(EXPORT_OWN_RECORDS, exportOwnRecordsSaga),
+    takeEvery(EDIT_PROFILE, editProfileSaga),
   ]);
 }

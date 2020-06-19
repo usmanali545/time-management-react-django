@@ -53,3 +53,25 @@ export function* signoutSaga(action) {
   window.localStorage.removeItem("working_hour_auth_token");
   yield put(push("/"));
 }
+
+export function* editProfileSaga(action) {
+  try {
+    yield put({ type: requestPending("EDIT_PROFILE") });
+    const response = yield call(
+      http,
+      "/profile/",
+      "POST",
+      {
+        ...action.payload,
+      },
+      true
+    );
+    yield put({ type: requestSuccess("EDIT_PROFILE") });
+    const { token } = response.data;
+    window.localStorage.setItem("working_hour_auth_token", token);
+    yield put({ type: "SET_USER_INFO", payload: response.data });
+    yield put(push("/main"));
+  } catch (error) {
+    yield put({ type: requestFailed("EDIT_PROFILE") });
+  }
+}

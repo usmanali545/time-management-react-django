@@ -107,3 +107,30 @@ class UsersViewSet(viewsets.ModelViewSet):
 
         serializer = UserSerializer(queryset, many=True)
         return Response(data={"total_users": total_users, "data": serializer.data})
+
+
+class ProfileView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def post(self, request, *args, **kwargs):
+        user = self.request.user
+        first_name = request.data.get("first_name", None)
+        last_name = request.data.get("last_name", None)
+        password = request.data.get("password", None)
+        user.first_name = first_name
+        user.last_name = last_name
+        if password is not None:
+            user.password = pwd_hash(password)
+        user.save()
+        return Response(
+            data={
+                "token": jwt_encode_handler(
+                    jwt_payload_handler(user)
+                ),
+                "user_id": user.id,
+                "email": user.email,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "role": user.role,
+                "working_hour": user.working_hour
+            })
